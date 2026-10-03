@@ -1,0 +1,40 @@
+# --- environments / build ---
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+web/dist/
+.env
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.claude/
+*.egg-info/
+
+# --- STAAD binaries / result files (never commit; text inputs ARE committed) ---
+*.bmd
+*.ANL
+*.dbs
+*.dgn
+*.dsp
+*.FLD
+*.rea
+*.day
+*.EQL
+*.CFR
+*.num
+*.sbk
+*.slg
+*.uid
+*.metadata
+*AutoRecovery*
+*REI_Saved_Picture*
+*REI_SPRO_Auxilary_Data
+*.scn
+*.ULD
+*.STD_Modifslg
+
+# --- large intermediates (commit only data/results/ and small manifests) ---
+data/raw/
+data/processed/*.parquet
+!data/processed/.gitkeep
