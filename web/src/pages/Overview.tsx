@@ -18,9 +18,14 @@ export default function Overview() {
         <Stat label="FE dataset" value={`${h.dataset_rows_ok}`} sub={`${h.dataset_feasible} truly feasible · all runs kept`} />
         <Stat label="Pareto front (headline A)" value={`${h.front_size_A} pts`} sub={`direct-FE front: ${h.front_size_direct} pts`} />
         <Stat
-          label="Verification pass rate"
+          label="Verification pass rate, headline A"
           value={pct(h.verification_pass_rate_A, 0)}
           sub={`${h.verification_n_A} designs re-run through FE + IS 456 (target 90 %)`}
+        />
+        <Stat
+          label="Best-validated configuration"
+          value={pct(h.verification_best_rate, 0)}
+          sub={`${String(meta.headline.verification_best_variant)}: pass rate of its ${h.verification_n_A} verified designs`}
         />
         <Stat
           label="Surrogate speed-up"

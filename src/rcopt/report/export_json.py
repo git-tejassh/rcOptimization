@@ -41,7 +41,7 @@ DEVIATIONS = [
     ("D4", "Verify 20-30 designs", "Same, plus re-evaluation of the entire pooled front", "Strengthens the verification result honestly"),
     ("D5", "20-week timeline", "Compressed: the pipeline runs in hours", "7th-semester-only project"),
     ("D6", "(not in the brief)", "Genome repair snaps every candidate to the nearest buildable IS-standard design", "96 % of uniform random genomes were geometrically unbuildable"),
-    ("D7", "(not in the brief)", "Surrogate B uses 4 critical column triples per group instead of every column", "Keeps the demand vector small; its approximation error is reported"),
+    ("D7", "(not in the brief)", "Surrogate B regresses the demands of column position classes (level x position, 30 classes) instead of every column", "Members of a class are equivalent by symmetry, so this is exact and smooth; the first attempt with 4 extremal triples failed verification (decision D-024)"),
 ]
 CONSTRAINTS = [
     ("Beam flexure", "Mu,demand / Mu,capacity <= 1 for sagging (bottom steel) and hogging (top steel), strain-compatible, xu <= xu,max", "IS 456 cl. 38.1, Annex G"),
@@ -132,9 +132,10 @@ def _findings(ds: pd.DataFrame, sm: dict, ver: dict, ff: dict, cmp_: dict, opt: 
     for k in ("A_margin", "B", "B_margin"):
         v = ver["variants"][k]
         f.append({"level": "info" if v["target_met"] else "warn", "text": f"Verification {LABELS[k]}: {v['n_pass']} / {v['n_verified']} pass ({100 * v['pass_rate']:.0f} %)."})
-    corr = opt["A"]["cost_carbon_correlation_pooled"]
-    if corr is not None and corr > 0.95:
-        f.append({"level": "warn", "text": f"Cost and carbon are strongly correlated along the front (r = {corr:.3f}): the Pareto front is narrow because both are driven by material volume."})
+    feas = ds[ds.feasible == 1]
+    corr = float(feas[["cost", "carbon"]].corr().iloc[0, 1])
+    n1 = {k: v["rank1_front_size"] for k, v in opt.items()}
+    f.append({"level": "bad" if max(n1.values()) < 25 else "info", "text": f"Pareto front proper: {n1} non-dominated points per configuration (criterion S1, at least 25, NOT met). Cost and carbon are strongly correlated over the {len(feas)} truly feasible designs (r = {corr:.3f}) because both follow material volume; the dashboard therefore shows the near-Pareto set (first non-dominated ranks, about 100 designs)."})
     c = cmp_["compute"]["configs"]
     sp = c["A"]["speedup_vs_direct_incl_datagen_and_training"]
     f.append({"level": "info" if sp > 1 else "warn", "text": f"Compute: a cold FE solve takes {1e3 * cmp_['compute']['mean_fe_solve_time_s_single_process']:.0f} ms; the surrogate-driven NSGA-II is "
@@ -154,13 +155,14 @@ def export_all() -> dict:
     ds = pd.concat([pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset.parquet"),
                     pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset_al.parquet")], ignore_index=True)
     sm, ver_raw = _load("surrogate_metrics.json"), _load("verification.json")
-    ff, cmp_, opt = _load("full_front_check.json"), _load("compute_comparison.json"), _load("optimization_summary.json")
+    ff, opt = _load("full_front_check.json"), _load("optimization_summary.json")
+    cmp_ = {"compute": _load("compute_comparison.json")}
     sens = _load("sensitivity.json") if (RESULTS / "sensitivity.json").exists() else None
     bench = _load("benchmark.json")
     rt, samp = _load("fe_runtime.json"), _load("sampling_report.json")
 
     # ---------------- pareto
-    variants, verified = {}, {}
+    variants = {}
     for v, fname in (("A", "pareto_surrogate_A"), ("A_margin", "pareto_surrogate_A_margin"), ("B", "pareto_surrogate_B"),
                      ("B_margin", "pareto_surrogate_B_margin"), ("direct", "pareto_direct")):
         front = pd.read_parquet(RESULTS / f"{fname}.parquet")
@@ -202,13 +204,14 @@ def export_all() -> dict:
     # ---------------- surrogate / verification / compute / sensitivity / benchmark
     _write("surrogate.json", _clean(sm))
     _write("verification.json", _clean({**ver_raw, "full_front": ff}))
-    direct, sa = cmp_["configs"]["direct"], cmp_["configs"]["A"]
+    cmpd = cmp_["compute"]
+    direct, sa = cmpd["configs"]["direct"], cmpd["configs"]["A"]
     verdict = (f"Direct-FE NSGA-II: {direct['wall_s_per_seed']:.0f} s per seed ({direct['unique_fe_solves_per_seed']:.0f} unique FE solves). "
-               f"Surrogate A: {sa['wall_s_per_seed']:.0f} s per seed, plus one-time data generation ({cmp_['data_generation']['serial_equivalent_s']:.0f} s serial-equivalent) "
-               f"and training ({cmp_['surrogate_training_s']:.0f} s). Speed-up incl. amortised cost: {sa['speedup_vs_direct_incl_datagen_and_training']:.2f}x; "
+               f"Surrogate A: {sa['wall_s_per_seed']:.0f} s per seed, plus one-time data generation ({cmpd['data_generation']['serial_equivalent_s']:.0f} s serial-equivalent) "
+               f"and training ({cmpd['surrogate_training_s']:.0f} s). Speed-up incl. amortised cost: {sa['speedup_vs_direct_incl_datagen_and_training']:.2f}x; "
                f"true-front hypervolume ratio vs direct: {sa['hv_ratio_true_vs_direct']:.3f}. "
                + ("The surrogate paid off." if sa["speedup_vs_direct_incl_datagen_and_training"] > 1 else "The surrogate did not pay off in this setting: an elastic frame FE is cheap."))
-    _write("compute.json", _clean({"compute": cmp_, "optimization": {k: {kk: vv for kk, vv in v.items() if kk != "run_summaries"} for k, v in opt.items()},
+    _write("compute.json", _clean({"compute": cmpd, "optimization": {k: {kk: vv for kk, vv in v.items() if kk != "run_summaries"} for k, v in opt.items()},
                                     "run_summaries": {k: v["run_summaries"] for k, v in opt.items()}, "verdict": verdict}))
     if sens:
         _write("sensitivity.json", _clean(sens))
@@ -240,11 +243,13 @@ def export_all() -> dict:
     h = ver_raw["variants"]["A"]
     headline = {
         "dataset_rows": int(len(ds)), "dataset_rows_ok": int(len(ok)), "dataset_feasible": int(ok.feasible.sum()),
-        "mean_fe_time_ms": 1e3 * cmp_["compute"]["mean_fe_solve_time_s_single_process"],
+        "mean_fe_time_ms": 1e3 * cmpd["mean_fe_solve_time_s_single_process"],
         "front_size_A": len(a_front), "front_size_direct": len(variants["direct"]),
         "hv_true_A": opt["A"]["hv_pooled_front_true"], "hv_true_B": opt["B"]["hv_pooled_front_true"], "hv_true_direct": opt["direct"]["hv_pooled_front_true"],
         "verification_pass_rate_A": h["pass_rate"], "verification_n_A": h["n_verified"],
         "verification_pass_rate_B": ver_raw["variants"]["B"]["pass_rate"],
+        "verification_best_variant": max(ver_raw["variants"], key=lambda k: ver_raw["variants"][k]["pass_rate"]),
+        "verification_best_rate": max(v["pass_rate"] for v in ver_raw["variants"].values()),
         "speedup_A_incl_costs": sa["speedup_vs_direct_incl_datagen_and_training"], "speedup_A_opt_only": sa["speedup_optimisation_only"],
         "surrogate_A_Uflex_MAE": sm["after_AL"]["A"]["overall"]["U_flex_max"]["MAE"], "surrogate_B_Uflex_MAE": sm["after_AL"]["B"]["overall"]["U_flex_max"]["MAE"],
         "surrogate_A_boundary_feas_agree": sm["after_AL"]["A"]["feasibility_boundary"]["agreement"],

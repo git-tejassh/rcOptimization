@@ -272,7 +272,7 @@ def run_phase3(force: bool = False) -> dict:
         rf_pred[t] = np.exp(rf.predict(Xte))
     metrics["baseline_random_forest_A_before_AL"] = evaluate_outputs(df_te, rf_pred)
     importance = {t: A0.importances(t) for t in ("U_flex_max", "U_col_max")}
-    importance |= {t: B0.importances(t) for t in ("B0_Mhog", "C0_T0_Pu")}
+    importance |= {t: B0.importances(t) for t in ("B0_Mhog", "T1_0_0_Pu")}
     importance_plot(importance, FIGS / "feature_importance.png")
     metrics["feature_importance_top"] = {k: v.head(10).round(4).to_dict() for k, v in importance.items()}
     metrics["parity_points_before"] = {"A": _sample_points(df_te, pa0), "B": _sample_points(df_te, pb0)}

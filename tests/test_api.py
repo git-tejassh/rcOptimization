@@ -1,9 +1,9 @@
 """API smoke tests (project.md 11.4). Surrogate endpoints need models/ (phase 3) and are skipped without them."""
 import numpy as np
 import pytest
+from api.main import app
 from fastapi.testclient import TestClient
 
-from api.main import app
 from rcopt.config import ROOT
 from rcopt.design.variables import default_space
 

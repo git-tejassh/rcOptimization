@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { Component, createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useData } from "./data";
 import Overview from "./pages/Overview";
 import DesignSpacePage from "./pages/DesignSpacePage";
@@ -10,6 +10,27 @@ import SensitivityPage from "./pages/SensitivityPage";
 import ProvenancePage from "./pages/ProvenancePage";
 import LivePage from "./pages/LivePage";
 import AboutPage from "./pages/AboutPage";
+
+/** A render error on one page must show a message, never a blank screen. */
+class Boundary extends Component<{ children: ReactNode; page: string }, { err: string | null }> {
+  state = { err: null as string | null };
+  static getDerivedStateFromError(e: Error) {
+    return { err: String(e) };
+  }
+  componentDidUpdate(prev: { page: string }) {
+    if (prev.page !== this.props.page && this.state.err) this.setState({ err: null });
+  }
+  render() {
+    return this.state.err ? (
+      <div className="card border-red-500">
+        <div className="h2 text-red-600">This page failed to render</div>
+        <p className="mt-1 text-sm">{this.state.err}</p>
+      </div>
+    ) : (
+      this.props.children
+    );
+  }
+}
 
 export const ThemeCtx = createContext<{ dark: boolean }>({ dark: false });
 export const useTheme = () => useContext(ThemeCtx);
@@ -84,7 +105,9 @@ export default function App() {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-5">
-        <Page />
+        <Boundary page={page}>
+          <Page />
+        </Boundary>
       </main>
       <footer className="mx-auto max-w-7xl px-4 pb-8 pt-2 text-xs muted">
         Gravity-only (IS 456:2000) · generated {meta.generated} · config {meta.config_hash} · not a final design

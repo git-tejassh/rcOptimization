@@ -1,16 +1,16 @@
 {
  "inputs": {
-  "config_hash": "fa8686c78b2375ea",
+  "config_hash": "845e94c0da8562dc",
   "n_matrix": 15000
  },
  "runtime": {
-  "wall_s": 198.5150380999985,
+  "wall_s": 270.7524895999959,
   "n_jobs": 8,
   "n_rows": 15000,
-  "n_fe_solves": 14986,
-  "mean_fe_time_s": 0.0887769008074482,
-  "median_fe_time_s": 0.08691514999372885,
-  "wall_s_per_row_parallel": 0.013234335873333232,
+  "n_fe_solves": 14989,
+  "mean_fe_time_s": 0.1148398410234196,
+  "median_fe_time_s": 0.11089090000314172,
+  "wall_s_per_row_parallel": 0.01805016597333306,
   "status_counts": {
    "OK": 15000
   },
@@ -18,6 +18,6 @@
   "feasible_fraction_of_ok": 0.22926666666666667,
   "near_boundary_rows": 5237,
   "dataset_rows": 15000,
-  "config_hash": "fa8686c78b2375ea"
+  "config_hash": "845e94c0da8562dc"
  }
 }

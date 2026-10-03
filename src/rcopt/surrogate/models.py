@@ -4,7 +4,7 @@
   (continuous, log-transformed) plus the stirrup spacings ``sv_B{g}`` (needed by the cost model, decision D-008).
   Each output is a bootstrap ensemble of XGBoost regressors (mean = prediction, std = uncertainty).
 * **B**: inputs = sizes + fck (the only things the elastic FE depends on); outputs = FE demands (beam Msag/Mhog/Vu per
-  group, critical column triples Pu/MD/Mb per group, delta/L per group); utilisations then come from the *exact*
+  group, column position classes Pu/MD/Mb (level x column position), delta/L per group); utilisations then come from the *exact*
   analytic IS 456 module via ``evaluate_from_demands``.
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ from rcopt.design.constraints import (
     geometry_violation,
 )
 from rcopt.design.variables import DesignSpace, default_space
-from rcopt.fe.runner import TRIPLE_FIELDS, demand_columns, row_to_demands
+from rcopt.fe.runner import TYPE_FIELDS, demand_columns, row_to_demands
 from rcopt.surrogate.features import FeatureBuilder
 
 TARGETS_A = ("U_flex_max", "U_shear_max", "U_col_max", "defl_ratio_max")
@@ -115,14 +115,13 @@ def _assemble(space: DesignSpace, G: np.ndarray, pred: dict, margin: float) -> d
     return {"cost": cost, "carbon": carbon, "g": g}
 
 
-def column_group_lengths_mm(design, geom: config.GeometryCfg | None = None) -> list[float]:
-    """Storey clear length per column group (h - D of the beam group at the top of the storey), mm."""
+def type_lengths_mm(design, geom: config.GeometryCfg | None = None) -> list[float]:
+    """Unsupported length of each column type level: stub (stub height), storey s (h - D of the beam group above), mm."""
     geom = geom or config.geometry()
     bg_of_level = {lv: gi for gi, grp in enumerate(geom.beam_groups) for lv in grp}
-    out = []
-    for grp in geom.column_groups:
-        s = max(grp)
-        out.append((geom.storey_heights_m[s] * 1000.0) - design.beams[bg_of_level[s + 1]].D_mm)
+    out = [geom.stub_height_m * 1000.0]
+    for s_, h in enumerate(geom.storey_heights_m):
+        out.append(h * 1000.0 - design.beams[bg_of_level[s_ + 1]].D_mm)
     return out
 
 
@@ -159,12 +158,8 @@ class SurrogateB:
     def _rows(self, G: np.ndarray, D: pd.DataFrame):
         for i in range(len(G)):
             design = self.space.decode(G[i])
-            lens = column_group_lengths_mm(design)
             row = D.iloc[i].to_dict()
-            for g in range(self.space.n_cg):
-                for k in range(4):
-                    row[f"C{g}_T{k}_l"] = lens[g]
-            yield design, *row_to_demands(row, self.space.n_bg, self.space.n_cg)
+            yield design, *row_to_demands(row, self.space.n_bg, self.space.n_cg, type_lengths_mm(design))
 
     def predict_eval(self, G: np.ndarray, margin: float = 0.0) -> dict:
         """Objectives and constraints; also returns the four utilisation outputs for metric comparison."""
@@ -189,4 +184,4 @@ class SurrogateB:
             ascending=False)
 
 
-__all__ = ["SurrogateA", "SurrogateB", "TARGETS_A", "aux_targets", "column_group_lengths_mm", "TRIPLE_FIELDS"]
+__all__ = ["SurrogateA", "SurrogateB", "TARGETS_A", "aux_targets", "TYPE_FIELDS", "type_lengths_mm"]

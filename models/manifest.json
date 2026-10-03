@@ -1,5 +1,5 @@
 {
- "config_hash": "fa8686c78b2375ea",
+ "config_hash": "845e94c0da8562dc",
  "n_train_final": 12500,
  "chosen_params": {
   "max_depth": 8,
@@ -11,14 +11,14 @@
  },
  "margin_q95": {
   "A": 0.07434891531309251,
-  "B": 0.25005721456499197
+  "B": 0.005392963859605304
  },
  "boundary_band": [
   0.85,
   1.15
  ],
  "dataset_rows": 15000,
- "created": "2026-10-04 01:05:14",
+ "created": "2026-10-04 02:01:56",
  "after_AL_overall_MAE_A": {
   "U_flex_max": 0.02559583678136868,
   "U_shear_max": 0.005142291017605558,
@@ -28,7 +28,7 @@
  "after_AL_overall_MAE_B": {
   "U_flex_max": 0.0009887771812176907,
   "U_shear_max": 0.00016401968734451556,
-  "U_col_max": 0.06723880175446345,
+  "U_col_max": 0.004576787888589001,
   "defl_ratio_max": 0.006117523508287053
  }
 }

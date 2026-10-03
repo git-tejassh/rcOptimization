@@ -25,17 +25,33 @@ def load_runs(configs=CONFIGS) -> dict[str, list[dict]]:
     return {c: [joblib.load(OUT_DIR / f"{c}_seed{s}.joblib") for s in oc["seeds"]] for c in configs}
 
 
-def pooled_front(runs: list[dict]) -> tuple[np.ndarray, np.ndarray]:
-    """Non-dominated union of the feasible final-population members of all seeds: (genomes, F as the algorithm saw it)."""
+def pooled_front(runs: list[dict], target: int = 100) -> tuple[np.ndarray, np.ndarray]:
+    """Near-Pareto set: feasible (as the algorithm saw it) final-population members of all seeds, unique, taken rank by rank
+    (non-dominated sorting) until ``target`` designs are collected. Rank 1 is the pooled Pareto front proper; with these
+    objectives it is tiny (cost and carbon are aligned), so deeper ranks give the verification / full-front checks
+    something to test. Returns (genomes, F) sorted by (rank, cost); ``last_ranks`` holds the rank of each row."""
+    from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
+
     X = np.vstack([r["X"][r["CV"] <= 0] for r in runs])
     F = np.vstack([r["F"][r["CV"] <= 0] for r in runs])
     if len(X) == 0:
+        pooled_front.last_ranks = np.array([], dtype=int)
         return X, F
     _, first = np.unique(X, axis=0, return_index=True)
     X, F = X[first], F[first]
-    nd = non_dominated(F)
-    order = nd[np.argsort(F[nd, 0])]
+    order: list[int] = []
+    ranks: list[int] = []
+    for rk, front in enumerate(NonDominatedSorting().do(F), start=1):
+        front = np.array(front)[np.argsort(F[front, 0])]
+        order += front.tolist()
+        ranks += [rk] * len(front)
+        if len(order) >= target:
+            break
+    pooled_front.last_ranks = np.array(ranks, dtype=int)
     return X[order], F[order]
+
+
+pooled_front.last_ranks = np.array([], dtype=int)
 
 
 def reevaluate(X: np.ndarray) -> pd.DataFrame:
@@ -68,14 +84,21 @@ def run_phase4(force: bool = False, n_jobs: int = 8) -> dict:
     t0 = time.time()
     summaries = run_all(force=force, n_jobs=n_jobs)
     runs = load_runs()
-    pooled = {c: pooled_front(runs[c]) for c in CONFIGS}
+    pooled, rank1 = {}, {}
+    for c in CONFIGS:
+        pooled[c] = pooled_front(runs[c])
+        rank1[c] = int((pooled_front.last_ranks == 1).sum())
+        pooled_front.ranks_by_cfg = getattr(pooled_front, 'ranks_by_cfg', {})
+        pooled_front.ranks_by_cfg[c] = pooled_front.last_ranks.copy()
     reeval = {c: reevaluate(pooled[c][0]) for c in CONFIGS}
     # truly feasible, non-dominated true fronts per config (true objectives)
     true_fronts: dict[str, np.ndarray] = {}
+    true_all: dict[str, np.ndarray] = {}
     for c in CONFIGS:
         d = reeval[c]
         ok = (d["true_status"] == "OK") & (d["true_feasible"] == 1)
         F = d.loc[ok, ["true_cost", "true_carbon"]].to_numpy()
+        true_all[c] = F
         true_fronts[c] = F[non_dominated(F)] if len(F) else F
     allF = np.vstack([pooled[c][1] for c in CONFIGS] + [f for f in true_fronts.values() if len(f)])
     norm = Normaliser(allF)
@@ -86,6 +109,7 @@ def run_phase4(force: bool = False, n_jobs: int = 8) -> dict:
         X, F = pooled[c]
         df = pd.DataFrame(X, columns=[f"g_{n}" for n in default_space().gene_names])
         df["pred_cost"], df["pred_carbon"] = F[:, 0], F[:, 1]
+        df["pred_rank"] = pooled_front.ranks_by_cfg[c]
         df = pd.concat([df.reset_index(drop=True), reeval[c].drop(columns=[x for x in reeval[c] if x.startswith("g_")]
                                                                   ).reset_index(drop=True)], axis=1)
         name = "pareto_direct.parquet" if c == "direct" else f"pareto_surrogate_{c}.parquet"
@@ -102,8 +126,11 @@ def run_phase4(force: bool = False, n_jobs: int = 8) -> dict:
         Ft = true_fronts[c]
         out_cfg[c] = {
             "seeds": len(runs[c]), "pop_size": runs[c][0]["pop_size"], "n_gen": runs[c][0]["n_gen"],
-            "pooled_front_size": int(len(X)), "pooled_front_truly_feasible": int(((df.true_status == "OK") & (df.true_feasible == 1)).sum()),
-            "true_front_size": int(len(Ft)), "hv_final_per_seed": per_seed_final.tolist(),
+            "pooled_front_size": int(len(X)), "rank1_front_size": rank1[c], "pooled_front_truly_feasible": int(((df.true_status == "OK") & (df.true_feasible == 1)).sum()),
+            "true_front_size": int(len(Ft)),
+            "best_true_cost": float(true_all[c][:, 0].min()) if len(true_all[c]) else None,
+            "best_true_carbon": float(true_all[c][:, 1].min()) if len(true_all[c]) else None,
+            "n_truly_feasible_in_set": int(len(true_all[c])), "hv_final_per_seed": per_seed_final.tolist(),
             "hv_final_mean": float(per_seed_final.mean()), "hv_final_std": float(per_seed_final.std()),
             "hv_pooled_front_as_seen": norm.hv(F), "hv_pooled_front_true": norm.hv(Ft),
             "spacing_true_front": spacing(norm(Ft)) if len(Ft) else float("nan"),

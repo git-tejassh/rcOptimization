@@ -142,7 +142,7 @@ def test_fe_demands_do_not_depend_on_reinforcement_or_steel_grade():
     sp = default_space()
     r1 = evaluate_genome(_genome(sp), sp)
     r2 = evaluate_genome(_genome(sp, B0_bn=4, B1_tn=3, C0_n=3, fy=0), sp)
-    for k in ("B0_Msag", "B0_Mhog", "B1_Vu", "C0_T0_Pu", "defl_L_B0", "defl_mm"):
+    for k in ("B0_Msag", "B0_Mhog", "B1_Vu", "T1_1_0_Pu", "defl_L_B0", "defl_mm"):
         assert r1[k] == pytest.approx(r2[k], rel=1e-12)
     assert r1["U_flex_max"] != r2["U_flex_max"]
 
@@ -159,7 +159,7 @@ def test_status_and_row_contract():
     row = evaluate_genome(_genome(sp), sp)
     assert row["status"] == "OK" and row["fe_time_s"] >= 0
     for k in ("U_flex_max", "U_shear_max", "U_col_max", "defl_ratio_max", "cost", "carbon", "feasible",
-              "B0_Msag", "C1_T3_Pu", "concrete_m3", "steel_kg"):
+              "B0_Msag", "T4_2_1_MD", "concrete_m3", "steel_kg"):
         assert k in row
 
 

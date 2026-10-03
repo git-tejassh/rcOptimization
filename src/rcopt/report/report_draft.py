@@ -28,6 +28,12 @@ def make_report() -> None:
     h = ver["variants"]["A"]
     cc = cmp_["configs"]
     prov = config.provisional_items()
+    import pandas as pd
+
+    dsf = pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset.parquet")
+    dsf = dsf[dsf.feasible == 1]
+    r_ds = float(dsf[["cost", "carbon"]].corr().iloc[0, 1])
+    n_nd_ds = int(len(__import__("rcopt.optimize.metrics", fromlist=["non_dominated"]).non_dominated(dsf[["cost", "carbon"]].to_numpy())))
 
     def fails(v: dict) -> str:
         if not v["failures"]:
@@ -42,6 +48,24 @@ def make_report() -> None:
         + (f"{x['speedup_optimisation_only']:.1f}x / {x['speedup_vs_direct_incl_datagen_and_training']:.2f}x |" if "speedup_optimisation_only" in x else "- |")
         for k, x in cc.items())
     sens_txt = sens["verdict"] if sens else "not run"
+    rank1_txt = ", ".join(f"{k} {v['rank1_front_size']}" for k, v in opt.items())
+    s1_text = (
+        "**Criterion S1 (at least 25 non-dominated points) is NOT met.** With the provisional cost and carbon data the Pareto front proper is tiny: "
+        f"among the {len(dsf)} truly feasible designs of the dataset exactly {n_nd_ds} is non-dominated, and the rank-1 sets of the optimisation runs have {rank1_txt} points. "
+        f"Cost and carbon are strongly correlated over the feasible designs (r = {r_ds:.3f}) because both follow material volume, and no variable (grade, steel grade, section) "
+        "trades one against the other with these factors. This is a finding, not something to be widened by changing rates or objectives. For verification and the full-front "
+        "check the report therefore uses a *near-Pareto set*: the first non-dominated ranks (about 100 designs) of the pooled, algorithm-feasible final populations of the "
+        "five seeds (decision D-025)."
+    )
+    near_text = (
+        "Near-Pareto sets re-evaluated with ground truth (truly feasible / set size; non-dominated true front; best cost INR; best carbon kgCO2e; HV of the true front): "
+        + "; ".join(
+            f"{k}: {v['n_truly_feasible_in_set']}/{v['pooled_front_size']}; {v['true_front_size']}; {v['best_true_cost']:.0f}; {v['best_true_carbon']:.0f}; {v['hv_pooled_front_true']:.3f}"
+            if v["best_true_cost"] else f"{k}: {v['n_truly_feasible_in_set']}/{v['pooled_front_size']} truly feasible"
+            for k, v in opt.items()
+        )
+        + "."
+    )
     text = f"""# Report draft: Surrogate-assisted multi-objective optimisation of an RC frame for cost and embodied carbon
 
 *Owner: Tejas Shrivastava, MANIT Bhopal (7th-semester major project). Generated from `data/results/` by `rcopt.report.report_draft`; every number below
@@ -64,7 +88,7 @@ Gravity only (1.5 (DL + LL) strength; 1.0 (DL + LL) service), beams and columns,
 `docs/SEISMIC_EXTENSION.md`), foundations, slab design, operational carbon. **The optimum is not a code-compliant design of the building**: {57} of the 133 columns in the STAAD report are governed by seismic cases.
 
 ## 3. Method
-* **Design space**: 22 integer genes ({_j('design_space.json')['total_combinations']:.2e} combinations): per beam group (2) b, D, bottom bars (dia, n), top bars (dia, n); per column group (2) b, D, bars (dia, n); concrete M20-M40; steel Fe415 / Fe500. A deterministic repair snaps candidates to buildable designs ({_p(samp['lhs_raw_geometry_infeasible_fraction'])} of raw uniform genomes are unbuildable).
+* **Design space**: 22 integer genes ({_j('design_space.json')['total_combinations']:.2e} combinations): per beam group (2) b, D, bottom bars (dia, n), top bars (dia, n); per column group (2) b, D, bars (dia, n); concrete M25-M40 (IS 456 Table 5 minimum for moderate exposure); steel Fe415 / Fe500. A deterministic repair snaps candidates to buildable designs ({_p(samp['lhs_raw_geometry_infeasible_fraction'])} of raw uniform genomes are unbuildable).
 * **FE**: OpenSeesPy `ElasticTimoshenkoBeam` frame, beams 0.35 Ig / columns 0.70 Ig, Ec = 5000 sqrt(fck), slab loads by yield-line tributary areas, wall loads following beam depth. One cold solve {1e3 * cmp_['mean_fe_solve_time_s_single_process']:.0f} ms.
 * **Checks**: IS 456 flexure (strain-compatible, doubly reinforced), shear (Tables 19-20), steel limits, column P-M interaction by strain compatibility with biaxial formula and slenderness, deflection <= L/250. Anchor tests, independent hand calculations (`docs/hand_calcs`) and the STAAD column-81 result are reproduced.
 * **Validation against STAAD** (`docs/BENCHMARK.md`): reactions {_p(b_last['reactions_Fy']['DL']['max_rel'], 4)}, vertical displacements {_p(b_last['displacements_dy_mm']['COMB11']['max_rel'], 4)}, column axial forces {_p(b_last['columns_Pu']['max_rel'], 4)}, column moments > 20 kN.m {_p(b_last['columns_Mz_ge20kNm']['max_rel'], 2)}. Two causes of earlier differences (wall-load eccentricity torque, shear deformation) were found and are documented.
@@ -83,12 +107,14 @@ Hold-out: {sm['n_test']} designs ({sm['n_test_boundary']} near the boundary).
         for t in ("U_flex_max", "U_shear_max", "U_col_max", "defl_ratio_max")) + f"""
 
 Feasibility agreement near the boundary: A {_p(a1['feasibility_boundary']['agreement'])} ({a1['feasibility_boundary']['FP_pred_feasible_but_truly_infeasible']} designs wrongly accepted), B {_p(b1['feasibility_boundary']['agreement'])} ({b1['feasibility_boundary']['FP_pred_feasible_but_truly_infeasible']}).
-Active learning changed A's boundary U_flex MAE from {a0['boundary']['U_flex_max']['MAE']:.4f} to {a1['boundary']['U_flex_max']['MAE']:.4f} and B's from {b0['boundary']['U_flex_max']['MAE']:.4f} to {b1['boundary']['U_flex_max']['MAE']:.4f}.
+Active learning (one round) moved A's boundary U_flex MAE from {a0['boundary']['U_flex_max']['MAE']:.4f} to {a1['boundary']['U_flex_max']['MAE']:.4f} and B's from {b0['boundary']['U_flex_max']['MAE']:.4f} to {b1['boundary']['U_flex_max']['MAE']:.4f}: no measurable benefit on this hold-out, so the extra FE runs of the initial sample (15,000 instead of 5,000) did more than the round itself.
 Hypothesis D2 (capacity is closed-form, so learn only demands) is {'supported' if b1['overall']['U_flex_max']['MAE'] < a1['overall']['U_flex_max']['MAE'] else 'NOT supported'} by the U_flex error. Figures: `docs/figures/parity_*_after_AL.png`.
 
 ## 5. Results: Pareto fronts
-Pooled fronts (truly feasible, re-evaluated): """ + ", ".join(f"{k} {v['true_front_size']} pts (HV {v['hv_pooled_front_true']:.4f})" for k, v in opt.items()) + f""".
-Cost and carbon are strongly correlated along the front (r = {opt['A']['cost_carbon_correlation_pooled']:.3f} for A): both follow material volume, so the front is narrow. Figure: `docs/figures/pareto_fronts.png`.
+{s1_text}
+
+{near_text}
+Surrogate B (and B + margin) reach designs at least as good as the direct-FE run within the same evaluation budget; plain surrogate A converges to designs on the constraint boundary, most of which are infeasible in truth, which is why the safety margin matters for A. Figure: `docs/figures/pareto_fronts.png`.
 Sensitivity (+/-20 %): {sens_txt}
 
 ## 6. Verification (`data/results/verification.json`)
@@ -111,7 +137,7 @@ One-time costs charged to the surrogate rows: data generation {cmp_['data_genera
 * Provisional (unverified): {len(prov)} config entries (all cost rates, carbon factors, IS 456 table transcriptions): see `docs/ASSUMPTIONS.md`. Absolute INR and kgCO2e values are indicative only.
 * Gravity only; no seismic / wind; no foundations; beam torsion ignored; slab not designed; cracked-stiffness modifiers 0.35 / 0.70 not validated by STAAD.
 * Deflection and shear never governed in the dataset; flexure, column interaction and steel limits did.
-* Surrogate B approximates the column demand by 4 critical triples per group; its error is part of the reported utilisation errors.
+* Surrogate B regresses the column demands per position class (30 classes); the earlier 4-extremal-triples variant failed verification (D-024) and was replaced.
 
 ## 9. Conclusions
 See the numbers above; the claims supported are: (i) the FE + IS 456 pipeline reproduces the owner's STAAD gravity results; (ii) surrogate reliability was measured, including near the boundary, with the failures listed; (iii) the surrogate speed-up against direct FE is as tabulated, including data generation; (iv) the cost-carbon front is narrow because both objectives follow material volume.
@@ -122,7 +148,7 @@ See the numbers above; the claims supported are: (i) the FE + IS 456 pipeline re
 
 1. **Why a surrogate if one FE solve takes only {1e3 * cmp_['mean_fe_solve_time_s_single_process']:.0f} ms?** It may not be worth it, and the project measures that: speed-up {cc['A']['speedup_optimisation_only']:.1f}x for the optimisation alone and {cc['A']['speedup_vs_direct_incl_datagen_and_training']:.2f}x including data generation and training (`compute_comparison.json`). The brief asked for a surrogate; the direct-FE baseline is the honest test. The surrogate would matter for a larger model (more storeys, nonlinear or seismic load cases).
 2. **Why not seismic?** Brief s5 defers it; the optimum is gravity-only. The STAAD report shows 57 of 133 columns governed by seismic cases, so the optimum is not a compliant design (`docs/SEISMIC_EXTENSION.md`).
-3. **Why is the front narrow?** Cost and carbon both follow material volume (r = {opt['A']['cost_carbon_correlation_pooled']:.3f}). Spread comes from concrete grade (cement content) and steel quantity. We did not distort rates to widen it.
+3. **Why is the front narrow?** Cost and carbon both follow material volume (r = {r_ds:.3f} over the feasible dataset). With the provisional rates and factors no variable trades one against the other, so the Pareto front proper is only 1-4 points (criterion S1 not met); the finding is reported, and rates were not distorted to widen it.
 4. **How do you know the IS checks are right?** Anchor tests (Mu,lim/bd2 2.76 / 3.45 / 4.14, Tables 19-20 spot values), independent hand calculations (`docs/hand_calcs`), and STAAD's own column-81 design numbers reproduced (Puz 2901.43 kN, Muz1 150.87 kN.m within 1.5 %, IR 0.39). The IS table transcriptions are still marked provisional until you check them against the printed code.
 5. **How do you know the FE is right?** Closed-form beam tests and equilibrium checks, and a benchmark against your STAAD model: reactions to {_p(b_last['reactions_Fy']['DL']['max_rel'], 4)}, column axial force {_p(b_last['columns_Pu']['max_rel'], 4)}, column moments {_p(b_last['columns_Mz_ge20kNm']['max_rel'], 2)} (`docs/BENCHMARK.md`).
 6. **Why OpenSees and not STAAD in the loop?** Brief s7: STAAD needs a licence, is slow to drive, and cannot run on any OS. STAAD is used as geometry source and benchmark only. The legacy STAAD-driven optimiser was archived because it had fixed demands and a single-point front (`docs/LEGACY_AUDIT.md`).

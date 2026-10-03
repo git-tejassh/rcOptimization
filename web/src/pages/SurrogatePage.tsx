@@ -134,7 +134,7 @@ export default function SurrogatePage() {
           </tbody>
         </table>
         <p className="mt-2 text-xs muted">
-          Lower R² on C*_T1/T2/T3 entries reflects that "which column is critical" changes discontinuously with the sizes (stub vs storey column); utilisation errors above already include this effect.
+          Column demands are regressed per position class (storey level x position in plan), which is smooth in the sizes; utilisation errors above already include any residual error.
         </p>
       </section>
       <section className="card overflow-x-auto">

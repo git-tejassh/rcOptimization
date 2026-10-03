@@ -89,7 +89,7 @@ class FEDemands:
     """Factored (strength) demands per group + service deflection, as stored in the dataset."""
 
     beam: np.ndarray                  # (n_bg, 3): Msag_kNm, Mhog_kNm, Vu_kN
-    col_triples: np.ndarray           # (n_cg, 4, 4): critical (Pu_kN, MD_kNm, Mb_kNm, l_mm)
+    col_types: np.ndarray             # (n_storeys + 1, ncx, ncz, 4): (Pu_kN, MD_kNm, Mb_kNm, l_mm) per column position class
     col_all: list[np.ndarray]         # per column group (n_members, 4); not stored in the dataset
     defl_over_L: np.ndarray           # (n_bg,): max service delta / L per beam group
     defl_mm: float                    # max service deflection (mm)
@@ -343,12 +343,24 @@ def analyze(fe_in: FEInput, fs: FrameSpec | None = None, st: FESettings | None =
             l_mm = (m.length_m - fe_in.beam_sizes_mm[top_group][1] / 1000.0) * 1000.0
         col_all[m.group].append([Pu, MD, Mb, l_mm])
     col_all_a = [np.array(c) for c in col_all]
-    triples = np.zeros((len(col_all_a), 4, 4))
-    for g, a in enumerate(col_all_a):
-        res = np.hypot(a[:, 1], a[:, 2])
-        for t_, idx in enumerate((a[:, 0].argmax(), a[:, 1].argmax(), a[:, 2].argmax(), res.argmax())):
-            triples[g, t_] = a[idx]
+    # position classes (level, min(ix, nx-1-ix), min(iz, nz-1-iz)); level 0 = stub, s + 1 = storey s. Members of a class are
+    # equivalent by symmetry, so the class maxima are a smooth, exact summary (Surrogate B regresses these, decision D-024).
+    ncx, ncz = (fs.nx + 1) // 2, (fs.nz + 1) // 2
+    types = np.zeros((fs.n_storeys + 1, ncx, ncz, 4))
+    for m in cols:
+        e = ef_s[m.id]
+        if D_is_x:
+            MD, Mb = max(abs(e[5]), abs(e[11])), max(abs(e[3]), abs(e[9]))
+        else:
+            MD, Mb = max(abs(e[3]), abs(e[9])), max(abs(e[5]), abs(e[11]))
+        lv = 0 if m.kind == "stub" else m.level + 1
+        t = types[lv, min(m.i, fs.nx - 1 - m.i), min(m.j, fs.nz - 1 - m.j)]
+        if m.kind == "stub":
+            l_mm = m.length_m * 1000.0
+        else:
+            l_mm = (m.length_m - fe_in.beam_sizes_mm[fs.beam_group_of_level[m.level + 1]][1] / 1000.0) * 1000.0
+        t[:] = (max(t[0], float(e[1])), max(t[1], MD), max(t[2], Mb), l_mm)
 
     raw = {"ef_strength": ef_s, "ef_service": ef_v, "beams": beams, "Ms": Ms, "Vs": Vs, "v": v, "x": x,
            "sols": sols, "nodal": nodal, "q_dl": q_dl, "q_ll": q_ll} if keep_raw else {}
-    return FEDemands(beam_out, triples, col_all_a, d_over_L, defl_mm, float(eq_err), beam_eq, ok, raw)
+    return FEDemands(beam_out, types, col_all_a, d_over_L, defl_mm, float(eq_err), beam_eq, ok, raw)

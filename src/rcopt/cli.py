@@ -144,13 +144,24 @@ def export() -> None:
     typer.echo(f"export ok: {len(r['files'])} files, {r['bytes'] / 1e6:.2f} MB in {r['seconds']:.0f}s -> web/public/data")
 
 
+@app.command()
+def report() -> None:
+    """Figures (docs/figures), docs/REPORT_DRAFT.md and docs/VIVA_PREP.md from data/results."""
+    from rcopt.report.figures import make_figures
+    from rcopt.report.report_draft import make_report
+
+    typer.echo(f"figures: {make_figures()}")
+    make_report()
+    typer.echo("report: docs/REPORT_DRAFT.md, docs/VIVA_PREP.md written")
+
+
 @app.command(name="all")
 def run_all_phases(force: bool = False) -> None:
     """Run phases 0 -> 5, the sensitivity study and the export (cached stages are skipped unless --force)."""
     import subprocess
     import sys
 
-    steps = ["phase0", "phase0b", "phase1", "phase2", "phase3", "phase4", "phase5", "sensitivity", "export"]
+    steps = ["phase0", "phase0b", "phase1", "phase2", "phase3", "phase4", "phase5", "sensitivity", "report", "export"]
     for s in steps:
         cmd = [sys.executable, "-m", "rcopt.cli", s] + (["--force"] if force and s in ("phase2", "phase3", "phase4") else [])
         typer.echo(f">> {' '.join(cmd[2:])}")
