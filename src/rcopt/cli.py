@@ -89,5 +89,74 @@ def phase2(force: bool = False) -> None:
                f"near-boundary {r['near_boundary_rows']}, wall {r['wall_s']:.1f}s, mean FE {1e3 * r['mean_fe_time_s']:.1f} ms")
 
 
+@app.command()
+def phase3(force: bool = False) -> None:
+    """P3: train surrogates A and B, evaluate, one active-learning round -> models/ + surrogate_metrics.json."""
+    from rcopt.surrogate.pipeline import run_phase3
+
+    m = run_phase3(force=force)
+    for tag in ("before_AL", "after_AL"):
+        a, b = m[tag]["A"], m[tag]["B"]
+        typer.echo(f"{tag}: U_flex MAE A {a['overall']['U_flex_max']['MAE']:.4f} B {b['overall']['U_flex_max']['MAE']:.4f} | "
+                   f"U_col MAE A {a['overall']['U_col_max']['MAE']:.3f} B {b['overall']['U_col_max']['MAE']:.3f} | "
+                   f"boundary feas.agree A {a['feasibility_boundary']['agreement']:.3f} B {b['feasibility_boundary']['agreement']:.3f}")
+    typer.echo(f"phase3 ok in {m['runtime_s']:.0f}s; margins q95 {m['margin_q95']}")
+
+
+@app.command()
+def phase4(force: bool = False, n_jobs: int = 8) -> None:
+    """P4: NSGA-II (surrogate A/B, +/- margin, direct FE) x seeds -> pooled fronts + compute comparison."""
+    from rcopt.optimize.phase4 import run_phase4
+
+    r = run_phase4(force=force, n_jobs=n_jobs)
+    for c, v in r["compute"]["configs"].items():
+        typer.echo(f"{c:9s} HV(true front) {v['hv_pooled_front_true']:.4f}  wall/seed {v['wall_s_per_seed']:.0f}s  "
+                   f"unique evals {v['unique_evaluations_per_seed']:.0f}  FE solves {v['unique_fe_solves_per_seed']:.0f}")
+
+
+@app.command()
+def phase5() -> None:
+    """P5: verify 30 Pareto designs per front with ground truth; full-front re-evaluation."""
+    from rcopt.verify.full_front_check import run_full_front_check
+    from rcopt.verify.verify_pareto import run_phase5
+
+    v = run_phase5()
+    run_full_front_check()
+    for name, r in v["variants"].items():
+        typer.echo(f"{name:9s} verified {r['n_verified']}  pass {r['n_pass']} ({100 * r['pass_rate']:.0f} %)  "
+                   f"truly feasible {r['n_truly_feasible']}  within tolerance {r['n_within_tolerance']}")
+
+
+@app.command()
+def sensitivity(force: bool = False) -> None:
+    """+/-20 % sensitivity study of the headline front (steel cost, cement carbon, steel carbon)."""
+    from rcopt.cost_carbon.sensitivity import run_sensitivity
+
+    typer.echo(run_sensitivity(force=force)["verdict"])
+
+
+@app.command()
+def export() -> None:
+    """Write web/public/data/*.json (pydantic-validated) for the dashboard."""
+    from rcopt.report.export_json import export_all
+
+    r = export_all()
+    typer.echo(f"export ok: {len(r['files'])} files, {r['bytes'] / 1e6:.2f} MB in {r['seconds']:.0f}s -> web/public/data")
+
+
+@app.command(name="all")
+def run_all_phases(force: bool = False) -> None:
+    """Run phases 0 -> 5, the sensitivity study and the export (cached stages are skipped unless --force)."""
+    import subprocess
+    import sys
+
+    steps = ["phase0", "phase0b", "phase1", "phase2", "phase3", "phase4", "phase5", "sensitivity", "export"]
+    for s in steps:
+        cmd = [sys.executable, "-m", "rcopt.cli", s] + (["--force"] if force and s in ("phase2", "phase3", "phase4") else [])
+        typer.echo(f">> {' '.join(cmd[2:])}")
+        if subprocess.run(cmd, cwd=ROOT).returncode:
+            raise typer.Exit(1)
+
+
 if __name__ == "__main__":
     app()

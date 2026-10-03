@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --line: #e2e8f0;
+  --fg: #0f172a;
+  --muted: #64748b;
+}
+html.dark {
+  --bg: #0b1220;
+  --card: #111a2e;
+  --line: #24314d;
+  --fg: #e2e8f0;
+  --muted: #94a3b8;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@layer components {
+  .card {
+    @apply rounded-lg border p-4 shadow-sm;
+    background: var(--card);
+    border-color: var(--line);
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .h1 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  .h2 {
+    @apply text-lg font-semibold;
+  }
+  .btn {
+    @apply rounded-md border px-3 py-1.5 text-sm font-medium transition-colors;
+    border-color: var(--line);
+    background: var(--card);
+  }
+  .btn:hover {
+    @apply border-cyan-600;
+  }
+  .btn-on {
+    @apply border-cyan-600 bg-cyan-600 text-white;
+  }
+  table.t {
+    @apply w-full border-collapse text-sm;
+  }
+  table.t th {
+    @apply px-2 py-1.5 text-left font-semibold;
+    border-bottom: 2px solid var(--line);
+  }
+  table.t td {
+    @apply px-2 py-1.5 align-top;
+    border-bottom: 1px solid var(--line);
+  }
+  .tag {
+    @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium;
+  }
+  .prose-md h1 { @apply mt-4 text-xl font-semibold; }
+  .prose-md h2 { @apply mt-4 text-lg font-semibold; }
+  .prose-md h3 { @apply mt-3 font-semibold; }
+  .prose-md p, .prose-md li { @apply my-1 text-sm; }
+  .prose-md ul { @apply list-disc pl-5; }
+}
