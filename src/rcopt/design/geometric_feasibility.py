@@ -64,6 +64,8 @@ def check_geometry(design: Design, geom: config.GeometryCfg | None = None,
             reasons.append(f"C{g}_SPACING_MIN")
         if max(sb, sD) > d.column_clear_spacing_max_mm:
             reasons.append(f"C{g}_SPACING_MAX")
+        if 100.0 * cs.n * dt.bar_area_mm2(cs.dia_mm) / (cs.b_mm * cs.D_mm) > d.column_pt_abs_max_percent:
+            reasons.append(f"C{g}_PT_GT_ABS_MAX")
 
     if d.beam_b_le_column_b:
         n_storeys = len(geom.storey_heights_m)

@@ -48,6 +48,8 @@ def geometry_violation(design: Design, geom: config.GeometryCfg | None = None,
         smin = dt.min_clear_spacing_mm(cs.dia_mm, d.aggregate_size_mm, d.min_clear_spacing_mm)
         v += max(smin - min(sb, sD), 0.0) / smin + max(max(sb, sD) - d.column_clear_spacing_max_mm, 0.0) / \
             d.column_clear_spacing_max_mm
+        pt = 100.0 * cs.n * dt.bar_area_mm2(cs.dia_mm) / (cs.b_mm * cs.D_mm)
+        v += max(pt - d.column_pt_abs_max_percent, 0.0) / d.column_pt_abs_max_percent
     if d.beam_b_le_column_b:
         n_storeys = len(geom.storey_heights_m)
         col_of_storey = {s: g for g, grp in enumerate(geom.column_groups) for s in grp}

@@ -34,6 +34,7 @@ detailing:
   beam_pt_max_percent: 4.0      # cl. 26.5.1.1 (max 4 % of bD)
   column_pt_min_percent: 0.8    # cl. 26.5.3.1
   column_pt_max_percent: 4.0    # design cap (code max 6 %, 4 % for lap practicality)
+  column_pt_abs_max_percent: 6.0   # cl. 26.5.3.1 absolute maximum: geometric infeasibility, repaired
   column_clear_spacing_max_mm: 300   # cl. 26.5.3.1
   min_stirrup_ratio_k: 0.4      # cl. 26.5.1.6: Asv/(b sv) >= 0.4/(0.87 fy)
   stirrup_fy_cap_MPa: 415       # cl. 40.4 note

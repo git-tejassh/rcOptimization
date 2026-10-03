@@ -117,6 +117,7 @@ class DetailingCfg(_Strict):
     beam_pt_max_percent: float
     column_pt_min_percent: float
     column_pt_max_percent: float
+    column_pt_abs_max_percent: float
     column_clear_spacing_max_mm: float
     min_stirrup_ratio_k: float
     stirrup_fy_cap_MPa: float

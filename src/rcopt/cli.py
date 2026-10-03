@@ -63,5 +63,17 @@ def phase0b() -> None:
         raise typer.Exit(code)
 
 
+@app.command()
+def phase1() -> None:
+    """P1: discrete-aware LHS + feasibility-biased design matrix -> data/processed/design_matrix.parquet."""
+    from rcopt.sampling.matrix import build_design_matrix, write_matrix
+
+    df, rep = build_design_matrix()
+    write_matrix(df, rep)
+    typer.echo(f"phase1 ok: {len(df)} designs ({rep['n_rows']}), raw LHS geometry-infeasible "
+               f"{100 * rep['lhs_raw_geometry_infeasible_fraction']:.1f} %, impossible rows after repair: "
+               f"{rep['physically_impossible_rows']}")
+
+
 if __name__ == "__main__":
     app()

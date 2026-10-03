@@ -3,7 +3,7 @@
 Rules (each maps an infeasible choice to an IS-standard option; nothing is ever interpolated):
 
 1. column groups: ``(b, D) -> (min, max)`` so that D >= b;
-2. column bars ``(dia, count)``: if the face spacing rules fail for that size, pick the feasible
+2. column bars ``(dia, count)``: if the face spacing rules or the 6 % absolute steel maximum fail for that size, pick the feasible
    ``(dia, count)`` pair closest in option-index space (L1), ties to the smaller steel area;
 3. beam width: clamp to the largest option <= the narrowest column width it frames into;
 4. beam bars: if more than ``max_layers`` layers would be needed, reduce the count until the bars fit.
@@ -29,7 +29,8 @@ def _col_feasible(b: int, D: int, dia: int, n: int) -> bool:
     tie = tie_dia_mm(dia, cfg.column.tie_dia_min_mm)
     sb, sD = dt.column_clear_spacings_mm(b, D, dia, n, cfg.cover_mm.column, tie)
     smin = dt.min_clear_spacing_mm(dia, d.aggregate_size_mm, d.min_clear_spacing_mm)
-    return min(sb, sD) >= smin and max(sb, sD) <= d.column_clear_spacing_max_mm
+    pt = 100.0 * n * dt.bar_area_mm2(dia) / (b * D)
+    return min(sb, sD) >= smin and max(sb, sD) <= d.column_clear_spacing_max_mm and pt <= d.column_pt_abs_max_percent
 
 
 @lru_cache(maxsize=None)
