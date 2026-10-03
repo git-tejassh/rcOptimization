@@ -121,6 +121,9 @@ def evaluate_b_demands(df_te: pd.DataFrame, D: pd.DataFrame) -> dict:
 def tune(G: np.ndarray, df: pd.DataFrame, groups: pd.Series) -> tuple[dict, list]:
     """Pick xgboost params by 5-fold group CV on the training portion only (mean log-space MAE over the 4 targets)."""
     fb = FeatureBuilder()
+    if len(G) > 6000:                                    # CV on a fixed 6000-row subsample keeps tuning affordable
+        sub = np.sort(np.random.default_rng(0).choice(len(G), 6000, replace=False))
+        G, df, groups = G[sub], df.iloc[sub].reset_index(drop=True), groups.iloc[sub].reset_index(drop=True)
     X = fb.features_a(G)
     results = []
     folds = list(GroupKFold(n_splits=config.load_dict("surrogate")["cv_folds"]).split(X, groups=groups))

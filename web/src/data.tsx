@@ -30,6 +30,12 @@ export const useData = () => {
 };
 
 async function get<T>(name: string, optional = false): Promise<T | null> {
+  const embedded = (window as any).__RCOPT_DATA__;
+  if (embedded && embedded[name] !== undefined) return embedded[name] as T;
+  if (window.location.protocol === "file:") {
+    if (optional) return null;
+    throw new Error(`data/${name}.json is not embedded: run \`rcopt export\` (it writes data/bundle.js) and rebuild`);
+  }
   const r = await fetch(`data/${name}.json`);
   if (!r.ok) {
     if (optional) return null;

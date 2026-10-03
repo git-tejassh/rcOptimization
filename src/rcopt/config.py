@@ -126,6 +126,7 @@ class DetailingCfg(_Strict):
 
 class DesignSpaceCfg(_Strict):
     repair: bool = True
+    exposure_requirements: dict[str, dict]
     beam: BeamSpace
     column: ColumnSpace
     global_: GlobalSpace = Field(alias="global")
@@ -144,6 +145,8 @@ class DesignSpaceCfg(_Strict):
         }.items():
             if lst != sorted(set(lst)):
                 raise ValueError(f"{name} must be strictly increasing")
+        if self.cover_mm.exposure not in self.exposure_requirements:
+            raise ValueError("cover_mm.exposure must be a key of exposure_requirements")
         if any(c % 2 or c < 4 for c in self.column.bar_count):
             raise ValueError("column.bar_count must be even and >= 4 (symmetric rectangular layout)")
         return self

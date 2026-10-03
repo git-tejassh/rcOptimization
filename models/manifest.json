@@ -1,6 +1,6 @@
 {
- "config_hash": "cc2ad0d3a45a6282",
- "n_train_final": 4501,
+ "config_hash": "fa8686c78b2375ea",
+ "n_train_final": 12500,
  "chosen_params": {
   "max_depth": 8,
   "n_estimators": 600,
@@ -10,25 +10,25 @@
   "min_child_weight": 2
  },
  "margin_q95": {
-  "A": 0.5447117328643786,
-  "B": 0.3668757582533102
+  "A": 0.07434891531309251,
+  "B": 0.25005721456499197
  },
  "boundary_band": [
   0.85,
   1.15
  ],
- "dataset_rows": 5000,
- "created": "2026-10-04 00:28:31",
+ "dataset_rows": 15000,
+ "created": "2026-10-04 01:05:14",
  "after_AL_overall_MAE_A": {
-  "U_flex_max": 0.035054958175643164,
-  "U_shear_max": 0.00817844417838072,
-  "U_col_max": 0.17880476386691177,
-  "defl_ratio_max": 0.006737552792037823
+  "U_flex_max": 0.02559583678136868,
+  "U_shear_max": 0.005142291017605558,
+  "U_col_max": 0.09906972595340476,
+  "defl_ratio_max": 0.0035915155212372543
  },
  "after_AL_overall_MAE_B": {
-  "U_flex_max": 0.0017794763256521436,
-  "U_shear_max": 0.0002746619385144878,
-  "U_col_max": 0.07631806191313172,
-  "defl_ratio_max": 0.00921864101986058
+  "U_flex_max": 0.0009887771812176907,
+  "U_shear_max": 0.00016401968734451556,
+  "U_col_max": 0.06723880175446345,
+  "defl_ratio_max": 0.006117523508287053
  }
 }

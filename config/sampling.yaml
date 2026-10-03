@@ -1,3 +1,3 @@
-n_base: 5000
-biased_fraction: 0.30
+n_base: 15000          # more FE data: the learning curve of Surrogate A was still falling at 4000 designs
+biased_fraction: 0.40
 seed: 42

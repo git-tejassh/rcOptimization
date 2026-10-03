@@ -1,34 +1,34 @@
 {
  "n_requested": {
-  "lhs": 3500,
-  "biased": 1500
+  "lhs": 9000,
+  "biased": 6000
  },
  "n_rows": {
-  "lhs": 3500,
-  "biased": 1500
+  "lhs": 9000,
+  "biased": 6000
  },
- "lhs_raw_geometry_infeasible_fraction": 0.962,
+ "lhs_raw_geometry_infeasible_fraction": 0.9664444444444444,
  "lhs_raw_infeasible_reason_counts": {
-  "D_LT_B": 3096,
-  "B_GT_COLUMN_B": 2523,
-  "SPACING_MIN": 1326,
-  "SPACING_MAX": 1274,
-  "PT_GT_ABS_MAX": 708,
-  "TOP_NOFIT": 235,
-  "BOT_NOFIT": 227
+  "D_LT_B": 7994,
+  "B_GT_COLUMN_B": 6491,
+  "SPACING_MIN": 3402,
+  "SPACING_MAX": 3277,
+  "PT_GT_ABS_MAX": 1884,
+  "BOT_NOFIT": 635,
+  "TOP_NOFIT": 631
  },
- "lhs_rows_changed_by_repair_fraction": 0.962,
+ "lhs_rows_changed_by_repair_fraction": 0.9664444444444444,
  "lhs_duplicates_after_repair_dropped": 0,
- "biased_candidates_drawn": 5077,
- "biased_acceptance": 0.2954500689383494,
+ "biased_candidates_drawn": 19380,
+ "biased_acceptance": 0.30959752321981426,
  "biased_rejection_counts": {
-  "COLUMN_PT_LIMITS": 2326,
-  "BEAM_STEEL_LIMITS": 591,
-  "BEAM_FLEXURE_CRUDE": 425,
-  "COLUMN_AXIAL_CRUDE": 235
+  "COLUMN_PT_LIMITS": 8875,
+  "BEAM_STEEL_LIMITS": 2244,
+  "BEAM_FLEXURE_CRUDE": 1630,
+  "COLUMN_AXIAL_CRUDE": 631
  },
  "seed": 42,
- "config_hash": "752511eafa1a2f9d",
+ "config_hash": "1acd38de93f352e9",
  "physically_impossible_rows": 0,
  "impossible_reasons": {},
  "genes_in_range": true,
@@ -53,7 +53,7 @@
   "C1_D": 9,
   "C1_dia": 5,
   "C1_n": 6,
-  "fck": 5,
+  "fck": 4,
   "fy": 2
  },
  "cover_exposure": "moderate"

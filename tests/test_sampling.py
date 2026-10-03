@@ -43,7 +43,8 @@ def test_precheck_accepts_reasonable_and_rejects_undersized():
 def test_design_matrix_gate():
     df, rep = build_design_matrix()
     sp = default_space()
-    assert len(df) == 5000 and set(df.sample_stratum) == {"lhs", "biased"}
+    from rcopt import config
+    assert len(df) == config.load_dict("sampling")["n_base"] and set(df.sample_stratum) == {"lhs", "biased"}
     assert rep["physically_impossible_rows"] == 0 and rep["genes_in_range"]
     assert df["id"].is_unique
     cols = [c for c in df if c.startswith("g_")]

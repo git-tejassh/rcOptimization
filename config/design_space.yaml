@@ -23,6 +23,14 @@ column:
 global:
   concrete_grade: [M20, M25, M30, M35, M40]
   steel_grade: [Fe415, Fe500]
+# IS 456 Table 5 (durability) and Table 16 (cover) by exposure: PROVISIONAL transcription, owner must verify.
+# The chosen exposure removes concrete grades below its minimum from the option list (a grade below the minimum is not allowed).
+exposure_requirements:
+  mild:        {min_grade: M20, min_cement_kg_m3: 300, max_water_cement: 0.55, cover_beam_mm: 20}
+  moderate:    {min_grade: M25, min_cement_kg_m3: 300, max_water_cement: 0.50, cover_beam_mm: 30}
+  severe:      {min_grade: M30, min_cement_kg_m3: 320, max_water_cement: 0.45, cover_beam_mm: 45}
+  very_severe: {min_grade: M35, min_cement_kg_m3: 340, max_water_cement: 0.45, cover_beam_mm: 50}
+  extreme:     {min_grade: M40, min_cement_kg_m3: 360, max_water_cement: 0.40, cover_beam_mm: 75}
 cover_mm:                       # IS 456 Table 16 / cl. 26.4.2.1; exposure = moderate (record in ASSUMPTIONS)
   exposure: moderate
   beam: 30

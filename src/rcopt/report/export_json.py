@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 import time
 
-import joblib
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel
@@ -81,9 +80,20 @@ class DesignModel(_Out):
     feasible_true: bool
 
 
+_BUNDLE: dict = {}
+
+
 def _write(name: str, obj) -> None:
     WEB_DATA.mkdir(parents=True, exist_ok=True)
-    (WEB_DATA / name).write_text(json.dumps(obj, default=float, allow_nan=False, separators=(",", ":")), encoding="utf-8")
+    txt = json.dumps(obj, default=float, allow_nan=False, separators=(",", ":"))
+    (WEB_DATA / name).write_text(txt, encoding="utf-8")
+    _BUNDLE[name[:-5]] = txt
+
+
+def _write_bundle() -> None:
+    """Classic script with every JSON file, so the single-file build also works when opened from disk (file://)."""
+    body = ",".join(f'"{k}":{v}' for k, v in _BUNDLE.items())
+    (WEB_DATA / "bundle.js").write_text("window.__RCOPT_DATA__={" + body + "};", encoding="utf-8")
 
 
 def _clean(x):
@@ -251,8 +261,9 @@ def export_all() -> dict:
             "fe_runtime": rt}
     MetaModel(**meta)
     _write("meta.json", _clean(meta))
+    _write_bundle()
     return {"files": sorted(p.name for p in WEB_DATA.glob("*.json")), "seconds": time.time() - t0,
             "bytes": sum(p.stat().st_size for p in WEB_DATA.glob("*.json"))}
 
 
-__all__ = ["export_all", "joblib"]
+__all__ = ["export_all"]

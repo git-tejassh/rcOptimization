@@ -90,7 +90,9 @@ class DesignSpace:
                 names.append(f"C{g}_{gene}")
                 options.append(list(opts))
         names += ["fck", "fy"]
-        options += [list(gs.concrete_grade), list(gs.steel_grade)]
+        min_fck = self.fck_of[self.cfg.exposure_requirements[self.cfg.cover_mm.exposure]["min_grade"]]
+        grades = [g for g in gs.concrete_grade if self.fck_of[g] >= min_fck]       # IS 456 Table 5 minimum grade
+        options += [grades, list(gs.steel_grade)]
         self.gene_names: tuple[str, ...] = tuple(names)
         self.options: tuple[tuple, ...] = tuple(tuple(o) for o in options)
         self.n_options = np.array([len(o) for o in options], dtype=int)
