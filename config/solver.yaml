@@ -1,0 +1,25 @@
+fe:
+  beam_stiffness_factor: 0.35      # cracked-section modifier (project.md 4.3), applied to Iy, Iz, J of beams
+  column_stiffness_factor: 0.70
+  ec_factor: 5000.0                # Ec = 5000*sqrt(fck) MPa, IS 456 cl. 6.2.3.1
+  poisson: 0.17
+  equilibrium_tol: 1.0e-3          # sum of vertical reactions vs total load (relative)
+  n_jobs: auto                     # cpu_count - 1
+benchmark:                         # STAAD-matching mode (no modifiers; STAAD default material)
+  E_kNm2: 2.17184e7
+  density_kNm3: 23.5615
+  poisson: 0.17
+  beam_stiffness_factor: 1.0
+  column_stiffness_factor: 1.0
+checks:
+  deflection_limit_ratio: 250      # delta <= L/250 (IS 456 cl. 23.2 (a)) hard constraint
+  deflection_diag_ratio: 350       # L/350 or 20 mm diagnostic (cl. 23.2 (b)), report only
+  deflection_diag_abs_mm: 20.0
+  long_term_factor: 1.0            # cracked 0.35 Ig stiffness already ~2.9x gross deflection (see ASSUMPTIONS)
+  column_k_eff: 1.2                # le = k * unsupported length (gravity-only, conservative unbraced-type value)
+  emin_simultaneous: true          # apply emin about both axes at once (conservative; STAAD does this)
+  util_cap: 10.0                   # utilisation values are capped here (keeps surrogate targets finite)
+  max_slenderness_le_D: 60.0       # IS 456 cl. 25.3.1
+tolerance:                         # verification tolerances (project.md S2)
+  util_abs: 0.05
+  defl_rel: 0.05

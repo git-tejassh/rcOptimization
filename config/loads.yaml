@@ -1,0 +1,20 @@
+# Gravity loads. SI: kN, m. STAAD values reproduced; wall loads follow beam depth (see DECISIONS D-010).
+unit_weight_rc_kNm3: 25.0          # IS 875 (Part 1) Table 2: plain/reinforced concrete 24 / 25 kN/m3
+slab:
+  thickness_mm: 150                # implied by STAAD 4.75 = 0.15*25 + 1.0
+  finish_kNm2: 1.0
+  roof_finish_kNm2: 1.5            # implied by STAAD 5.25 = 3.75 + 1.5
+wall:
+  perimeter_thickness_m: 0.23
+  interior_thickness_m: 0.115
+  unit_weight_kNm3: 20.0           # brick masonry, IS 875 Pt 1; 0.23*(3-0.45)*20 = 11.73 = STAAD value
+  height_from_beam_depth: true     # wall height = storey height - D_beam of the supporting beam group
+  fixed_perimeter_kNm: 11.73       # used only when height_from_beam_depth is false
+  fixed_interior_kNm: 5.87
+  apply_at_roof: true              # STAAD applies wall load at all five beam levels
+live:                              # IS 875 (Part 2) Table 1 residential: 2.0 (rooms), roof accessible 1.5
+  floor_kNm2: 2.0
+  roof_kNm2: 1.5
+combinations:
+  strength: {DL: 1.5, LL: 1.5}     # IS 456 Table 18 (1.5 (DL+LL))
+  service:  {DL: 1.0, LL: 1.0}

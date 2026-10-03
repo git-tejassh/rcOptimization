@@ -1,0 +1,14 @@
+# Frame geometry (SI: m). Defaults extracted from legacy/staad_model/G+3 RCC FINAL.STD
+# (120 joints, 255 members). tests/test_geometry.py asserts this file matches the STAAD parse.
+source: config            # config | staad  (staad = rebuild FrameSpec from the STAAD text input)
+staad_file: legacy/staad_model/G+3 RCC FINAL.STD
+bays_x_m: [5.0, 5.0, 5.0, 5.0]
+bays_z_m: [5.0, 5.0, 5.0]
+storey_heights_m: [3.0, 3.0, 3.0, 3.0]     # G+3 = 4 storeys above the plinth level (y = 0)
+stub_height_m: 1.0                         # plinth-to-fixity stub columns (fixed at y = -stub)
+# Optimisation groups. Beam levels: 0 = plinth beams (y=0), 1..n = floor/roof beams.
+# Column storeys: 0 = first storey (stubs belong to storey 0's group).
+beam_groups: [[0, 1, 2], [3, 4]]
+column_groups: [[0, 1], [2, 3]]
+# Column section orientation: dimension D lies along this global horizontal axis (b along the other).
+column_D_axis: x

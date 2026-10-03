@@ -1,0 +1,27 @@
+# Embodied-carbon factors, scope A1-A4 (cradle-to-site) for frame materials. Formwork carbon EXCLUDED (flagged).
+# Every value below is PROVISIONAL: not verified against ICE v3.0 / an Indian EPD. See docs/CARBON_DATA_AUDIT.md.
+scope: A1-A4
+cement:
+  default: OPC
+  OPC: {value: 0.91, unit: kgCO2e/kg, source: "approx. ICE v3.0 CEM I (recalled, not re-checked)", confidence: medium, india_specific: false, status: provisional}
+  PPC: {value: 0.65, unit: kgCO2e/kg, source: "assumed ~30 % fly-ash blend; no source", confidence: low, india_specific: false, status: provisional}
+cement_content_kg_m3:       # typical mix designs (IS 10262 style); IS 456 Table 5 minimum 300-340 kg/m3
+  M20: {value: 330, source: "typical mix; no source", status: provisional}
+  M25: {value: 360, source: "typical mix; no source", status: provisional}
+  M30: {value: 390, source: "typical mix; no source", status: provisional}
+  M35: {value: 420, source: "typical mix; no source", status: provisional}
+  M40: {value: 450, source: "typical mix; no source", status: provisional}
+concrete_other_kgCO2e_m3:   # aggregates, water, admixture, batching
+  value: 12.0
+  confidence: low
+  india_specific: false
+  source: "assumed (aggregates ~1850 kg/m3 x ~0.005-0.0075 kgCO2e/kg); no source"
+  status: provisional
+steel:
+  Fe500: {value: 1.8, unit: kgCO2e/kg, source: "legacy/context.txt chat example (unverified); Indian route mix (BF-BOF/EAF/DRI-induction) not reflected", confidence: low, india_specific: false, status: provisional}
+  Fe415: {value: 1.8, unit: kgCO2e/kg, source: "same as Fe500 (no grade-specific factor found)", confidence: low, india_specific: false, status: provisional}
+transport_A4:
+  concrete: {distance_km: 30,  factor_kgCO2e_per_t_km: 0.11, source: "assumed ready-mix plant 30 km; factor approx. rigid HGV (unverified)", status: provisional}
+  steel:    {distance_km: 500, factor_kgCO2e_per_t_km: 0.11, source: "assumed mill-to-Bhopal 500 km; unverified", status: provisional}
+concrete_density_kg_m3: 2400
+steel_density_kg_m3: 7850

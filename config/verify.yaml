@@ -1,0 +1,6 @@
+n_designs: 30
+n_boundary: 5
+tol_util_abs: 0.05
+tol_defl_rel: 0.05
+pass_target: 0.90
+seed: 7

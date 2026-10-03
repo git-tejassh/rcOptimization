@@ -1,0 +1,37 @@
+# Discrete design space. Every gene is an integer index into one of these option lists (project.md 5.3).
+# Beam groups / column groups come from config/geometry.yaml.  Units: mm, MPa.
+beam:
+  b_mm: [230, 250, 300, 350, 400, 450]
+  D_mm: [300, 350, 400, 450, 500, 550, 600, 650, 700, 750]
+  bottom_bar_dia_mm: [12, 16, 20, 25]
+  top_bar_dia_mm: [12, 16, 20, 25]
+  bar_count: [2, 3, 4, 5, 6, 7, 8]
+  stirrup_dia_mm: 8
+  stirrup_legs: 2
+  stirrup_spacing_step_mm: 25
+  stirrup_spacing_min_mm: 75
+  max_layers: 2
+column:
+  b_mm: [230, 250, 300, 350, 400, 450, 500, 550, 600]
+  D_mm: [230, 250, 300, 350, 400, 450, 500, 550, 600]   # D >= b enforced (else GEOM_INFEASIBLE)
+  bar_dia_mm: [12, 16, 20, 25, 32]
+  bar_count: [4, 6, 8, 10, 12, 16]
+  tie_dia_min_mm: 8
+global:
+  concrete_grade: [M20, M25, M30, M35, M40]
+  steel_grade: [Fe415, Fe500]
+cover_mm:                       # IS 456 Table 16 / cl. 26.4.2.1; exposure = moderate (record in ASSUMPTIONS)
+  exposure: moderate
+  beam: 30
+  column: 40
+detailing:
+  aggregate_size_mm: 20
+  min_clear_spacing_mm: 25      # practical minimum, in addition to max(bar dia, aggregate + 5)
+  min_clear_vertical_mm: 25
+  beam_pt_max_percent: 4.0      # cl. 26.5.1.1 (max 4 % of bD)
+  column_pt_min_percent: 0.8    # cl. 26.5.3.1
+  column_pt_max_percent: 4.0    # design cap (code max 6 %, 4 % for lap practicality)
+  column_clear_spacing_max_mm: 300   # cl. 26.5.3.1
+  min_stirrup_ratio_k: 0.4      # cl. 26.5.1.6: Asv/(b sv) >= 0.4/(0.87 fy)
+  stirrup_fy_cap_MPa: 415       # cl. 40.4 note
+  beam_b_le_column_b: true      # practice: beam width must not exceed the width of the column it frames into

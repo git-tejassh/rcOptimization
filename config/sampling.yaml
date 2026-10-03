@@ -1,0 +1,3 @@
+n_base: 5000
+biased_fraction: 0.30
+seed: 42

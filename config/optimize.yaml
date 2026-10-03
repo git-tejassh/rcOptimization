@@ -1,0 +1,8 @@
+pop_size: 200
+n_gen: 300
+seeds: [1, 2, 3, 4, 5]
+margin: auto_q95            # surrogate safety margin: none | auto_q95 (95th-pct boundary abs error) | <float>
+direct_fe:
+  pop_size: 100             # may be reduced if wall-clock demands; evaluations and unique FE solves are both reported
+  n_gen: 100
+sensitivity_delta: 0.20

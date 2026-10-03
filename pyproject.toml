@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rcopt"
+version = "0.1.0"
+description = "Surrogate-assisted multi-objective optimization of RC frames for cost and embodied carbon"
+requires-python = ">=3.10"
+dependencies = [
+  "openseespy", "numpy", "scipy", "pandas", "pyarrow", "pyyaml", "pydantic", "scikit-learn",
+  "xgboost", "pymoo>=0.6", "matplotlib", "plotly", "fastapi", "uvicorn", "joblib", "tqdm",
+  "pytest", "ruff", "typer", "httpx",
+]
+
+[project.scripts]
+rcopt = "rcopt.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: heavy tests (FE batches, training) - deselect with -m 'not slow'"]
+
+[tool.ruff]
+line-length = 110
+src = ["src", "tests", "api", "scripts"]
+extend-exclude = ["legacy", "web", ".claude"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E741", "B008"]

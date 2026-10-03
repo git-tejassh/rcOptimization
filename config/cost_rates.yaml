@@ -1,0 +1,18 @@
+# Cost rates in INR. NOTHING here is a verified current rate: every value is a PROVISIONAL placeholder.
+# Owner: replace with current Bhopal rates (Essco price list / MP PWD SOR / CPWD DSR) and set status: sourced.
+currency: INR
+concrete_per_m3:          # placed (supply, pour, cure)
+  M20: {value: 5000, unit: INR/m3, source: "extrapolated -500 from M25 chat example (legacy/context.txt)", date: "2026-10", status: provisional}
+  M25: {value: 5500, unit: INR/m3, source: "legacy/context.txt chat example (unverified)", date: "2026-10", status: provisional}
+  M30: {value: 6000, unit: INR/m3, source: "legacy/context.txt chat example (unverified)", date: "2026-10", status: provisional}
+  M35: {value: 6500, unit: INR/m3, source: "legacy/context.txt chat example (unverified)", date: "2026-10", status: provisional}
+  M40: {value: 7000, unit: INR/m3, source: "extrapolated +500 from M35 chat example (legacy/context.txt)", date: "2026-10", status: provisional}
+steel_per_kg:             # supplied, cut, bent, tied, placed
+  Fe500: {value: 70, unit: INR/kg, source: "legacy/context.txt chat example (unverified)", date: "2026-10", status: provisional}
+  Fe415: {value: 68, unit: INR/kg, source: "placeholder: Fe500 minus 2 INR/kg; no source", date: "2026-10", status: provisional}
+formwork_per_m2:
+  value: 700
+  unit: INR/m2
+  source: "legacy/context.txt chat example (unverified)"
+  date: "2026-10"
+  status: provisional

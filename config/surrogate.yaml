@@ -1,0 +1,13 @@
+holdout: 0.20
+cv_folds: 5
+boundary_band: [0.85, 1.15]
+al_samples: 500
+seed: 42
+xgboost:
+  n_estimators: 600
+  max_depth: 8
+  learning_rate: 0.05
+  subsample: 0.9
+  colsample_bytree: 0.9
+  min_child_weight: 2
+n_ensemble: 5               # bootstrap ensemble for uncertainty in active learning
