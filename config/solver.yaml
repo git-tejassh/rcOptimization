@@ -5,7 +5,7 @@ fe:
   poisson: 0.17
   shear_deformation: true          # ElasticTimoshenkoBeam (shear area 5/6 A); STAAD includes shear deformation
   equilibrium_tol: 1.0e-3          # sum of vertical reactions vs total load (relative)
-  n_jobs: auto                     # cpu_count - 1
+  n_jobs: auto                     # min(cpu_count - 1, 8)
 benchmark:                         # STAAD-matching mode (no modifiers; STAAD default material)
   E_kNm2: 2.17184e+7
   density_kNm3: 23.5615

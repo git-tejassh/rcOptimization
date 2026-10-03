@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 
 import typer
@@ -9,6 +10,9 @@ import typer
 from rcopt import config
 from rcopt.config import ROOT
 from rcopt.design.variables import default_space
+
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):   # one BLAS thread per worker process
+    os.environ.setdefault(_v, "1")
 
 app = typer.Typer(add_completion=False, help="RC frame cost/carbon optimisation pipeline")
 RESULTS = ROOT / "data" / "results"
@@ -73,6 +77,16 @@ def phase1() -> None:
     typer.echo(f"phase1 ok: {len(df)} designs ({rep['n_rows']}), raw LHS geometry-infeasible "
                f"{100 * rep['lhs_raw_geometry_infeasible_fraction']:.1f} %, impossible rows after repair: "
                f"{rep['physically_impossible_rows']}")
+
+
+@app.command()
+def phase2(force: bool = False) -> None:
+    """P2: FE batch over the design matrix -> data/processed/fe_dataset.parquet + failure table."""
+    from rcopt.fe.batch import run_phase2
+
+    r = run_phase2(force=force)
+    typer.echo(f"phase2 ok: {r['dataset_rows']} rows, status {r['status_counts']}, feasible {r['feasible']}, "
+               f"near-boundary {r['near_boundary_rows']}, wall {r['wall_s']:.1f}s, mean FE {1e3 * r['mean_fe_time_s']:.1f} ms")
 
 
 if __name__ == "__main__":

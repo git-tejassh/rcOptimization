@@ -148,4 +148,5 @@ def evaluate_chunk(genomes: np.ndarray, ids: np.ndarray, strata: list[str]) -> l
 def default_n_jobs() -> int:
     import os
     cfg = config.load_dict("solver")["fe"]["n_jobs"]
-    return max(1, (os.cpu_count() or 2) - 1) if cfg == "auto" else int(cfg)
+    # OpenSees workers scale poorly past ~8 processes on this class of machine (measured: 1->51 s, 8->20 s, 15->25 s per 1200 designs)
+    return max(1, min((os.cpu_count() or 2) - 1, 8)) if cfg == "auto" else int(cfg)
