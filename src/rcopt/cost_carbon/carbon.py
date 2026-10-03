@@ -28,3 +28,22 @@ def carbon_kgco2e(q: Quantities, concrete: str, steel: str, overrides: dict | No
     a4_conc = q.concrete_m3 * c["concrete_density_kg_m3"] / 1000.0 * tc["distance_km"] * tc["factor_kgCO2e_per_t_km"]
     a4_steel = q.steel_kg / 1000.0 * ts["distance_km"] * ts["factor_kgCO2e_per_t_km"]
     return {"concrete": conc, "steel": stl, "transport": a4_conc + a4_steel, "total": conc + stl + a4_conc + a4_steel}
+
+
+def recompute_dataset_objectives(df, space=None):
+    """(cost, carbon) arrays for dataset rows from their stored quantities under the CURRENT config (no FE needed)."""
+    import numpy as np
+
+    from rcopt.cost_carbon.cost import cost_inr
+    from rcopt.design.variables import default_space
+
+    space = space or default_space()
+    grades = space.options[space.gene_index("fck")]
+    steels = space.options[space.gene_index("fy")]
+    cost, carb = np.empty(len(df)), np.empty(len(df))
+    z = 0.0
+    for i, (cm, sk, fw, gi, si) in enumerate(zip(df.concrete_m3, df.steel_kg, df.formwork_m2, df.g_fck, df.g_fy, strict=True)):
+        q = Quantities(cm, sk, fw, z, z, z, z, z, z, z, z, z, z)
+        cost[i] = cost_inr(q, grades[int(gi)], steels[int(si)])["total"]
+        carb[i] = carbon_kgco2e(q, grades[int(gi)], steels[int(si)])["total"]
+    return cost, carb

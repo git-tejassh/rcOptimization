@@ -8,7 +8,7 @@ A reproducible pipeline is built for a regular G+3 RC moment frame (the owner's 
 (validated against the owner's STAAD results to 0.0012 % on reactions) feed IS 456:2000 limit-state checks of discrete,
 IS-standard designs under gravity loading only. A dataset of 15000 analysed designs (all kept, 15000 OK, 3439 truly feasible) trains two surrogates;
 constrained NSGA-II minimises cost and embodied carbon. Surrogate-driven and direct-FE fronts are compared, 30 headline-front designs are re-verified
-(2 pass, 7 %; target 90 %), and the whole pooled front is re-evaluated. No novelty of algorithm is claimed.
+(9 pass, 30 %; target 90 %), and the whole pooled front is re-evaluated. No novelty of algorithm is claimed.
 
 ## 1. Introduction and literature position
 NSGA-II for RC frame cost optimisation has been published since at least 2016 (Kaveh et al., J. Civil Eng. & Management, 2016); surrogate-assisted NSGA-II for cost/carbon
@@ -21,7 +21,7 @@ Gravity only (1.5 (DL + LL) strength; 1.0 (DL + LL) service), beams and columns,
 
 ## 3. Method
 * **Design space**: 22 integer genes (1.31e+17 combinations): per beam group (2) b, D, bottom bars (dia, n), top bars (dia, n); per column group (2) b, D, bars (dia, n); concrete M25-M40 (IS 456 Table 5 minimum for moderate exposure); steel Fe415 / Fe500. A deterministic repair snaps candidates to buildable designs (96.6 % of raw uniform genomes are unbuildable).
-* **FE**: OpenSeesPy `ElasticTimoshenkoBeam` frame, beams 0.35 Ig / columns 0.70 Ig, Ec = 5000 sqrt(fck), slab loads by yield-line tributary areas, wall loads following beam depth. One cold solve 36 ms.
+* **FE**: OpenSeesPy `ElasticTimoshenkoBeam` frame, beams 0.35 Ig / columns 0.70 Ig, Ec = 5000 sqrt(fck), slab loads by yield-line tributary areas, wall loads following beam depth. One cold solve 28 ms.
 * **Checks**: IS 456 flexure (strain-compatible, doubly reinforced), shear (Tables 19-20), steel limits, column P-M interaction by strain compatibility with biaxial formula and slenderness, deflection <= L/250. Anchor tests, independent hand calculations (`docs/hand_calcs`) and the STAAD column-81 result are reproduced.
 * **Validation against STAAD** (`docs/BENCHMARK.md`): reactions 0.0012 %, vertical displacements 0.0012 %, column axial forces 0.0035 %, column moments > 20 kN.m 0.12 %. Two causes of earlier differences (wall-load eccentricity torque, shear deformation) were found and are documented.
 * **Sampling**: 9000 discrete-aware LHS designs + 6000 feasibility-biased designs; seed 42.
@@ -44,37 +44,37 @@ Active learning (one round) moved A's boundary U_flex MAE from 0.0213 to 0.0213 
 Hypothesis D2 (capacity is closed-form, so learn only demands) is supported by the U_flex error. Figures: `docs/figures/parity_*_after_AL.png`.
 
 ## 5. Results: Pareto fronts
-**Criterion S1 (at least 25 non-dominated points) is NOT met.** With the provisional cost and carbon data the Pareto front proper is tiny: among the 3439 truly feasible designs of the dataset exactly 1 is non-dominated, and the rank-1 sets of the optimisation runs have A 1, A_margin 3, B 1, B_margin 3, direct 1 points. Cost and carbon are strongly correlated over the feasible designs (r = 0.975) because both follow material volume, and no variable (grade, steel grade, section) trades one against the other with these factors. This is a finding, not something to be widened by changing rates or objectives. For verification and the full-front check the report therefore uses a *near-Pareto set*: the first non-dominated ranks (about 100 designs) of the pooled, algorithm-feasible final populations of the five seeds (decision D-025).
+**Criterion S1 (at least 25 non-dominated points) is NOT met.** With the current inputs (provisional cost rates, Indian secondary-source carbon factors: PPC 0.507, steel 2.5 kgCO2e/kg) the Pareto front proper is narrow: among the 3439 truly feasible designs of the dataset only 2 are non-dominated, and the rank-1 sets of the optimisation runs have A 4, A_margin 7, B 4, B_margin 5, direct 3 points. Over the direct-FE near-Pareto set cost spans only INR 2245703 to 2288829 (1.9 %) and carbon 55247 to 56224 kgCO2e (1.8 %). Cost and carbon are strongly correlated over the feasible designs (r = 0.985) because both follow material volume; the only trade-offs that exist (more concrete to save steel, concrete grade) are worth a few per cent. Realistic carbon factors widened the front (rank-1 size 1-3 -> 3-7 points) but not to 25 points; it was not widened by tuning rates or objectives. A genuinely wider front needs a design lever with a strong carbon-cost exchange (for example cement type / SCM replacement), which is outside the brief's variable list. For verification and the full-front check the report uses a *near-Pareto set*: the first non-dominated ranks (about 100 designs) of the pooled, algorithm-feasible final populations of the five seeds (decision D-025).
 
-Near-Pareto sets re-evaluated with ground truth (truly feasible / set size; non-dominated true front; best cost INR; best carbon kgCO2e; HV of the true front): A: 16/103; 4; 2299072; 65044; 0.502; A_margin: 101/101; 3; 2337968; 66157; 0.194; B: 101/106; 1; 2241157; 63668; 1.103; B_margin: 101/102; 3; 2260218; 64190; 0.858; direct: 108/108; 1; 2262459; 64033; 0.882.
+Near-Pareto sets re-evaluated with ground truth (truly feasible / set size; non-dominated true front; best cost INR; best carbon kgCO2e; HV of the true front): A: 95/102; 4; 2277813; 56751; 0.704; A_margin: 111/111; 7; 2343418; 58115; 0.244; B: 102/106; 4; 2245703; 55275; 1.076; B_margin: 104/104; 5; 2245703; 55525; 1.031; direct: 103/103; 3; 2245703; 55247; 1.081.
 Surrogate B (and B + margin) reach designs at least as good as the direct-FE run within the same evaluation budget; plain surrogate A converges to designs on the constraint boundary, most of which are infeasible in truth, which is why the safety margin matters for A. Figure: `docs/figures/pareto_fronts.png`.
-Sensitivity (+/-20 %): Under +/-20 % changes of steel cost, cement carbon and steel carbon, the baseline cost/carbon optima lose at most 0.7 % against the best design available under each scenario, and the worst rank correlation of cost/carbon across the baseline set is 0.801. The optimum or the ordering is NOT fully robust to these perturbations: see the scenario table.
+Sensitivity (+/-20 %): Under +/-20 % changes of steel cost, cement carbon and steel carbon, the baseline cost/carbon optima lose at most 1.0 % against the best design available under each scenario, and the worst rank correlation of cost/carbon across the baseline set is 0.488. The optimum or the ordering is NOT fully robust to these perturbations: see the scenario table.
 
 ## 6. Verification (`data/results/verification.json`)
 | Front | verified | pass | truly feasible | within tolerance | boundary picks passing |
 |---|---|---|---|---|---|
-| A | 30 | 2 (7 %) | 2 | 24 | 0/5 |
-| A_margin | 30 | 18 (60 %) | 30 | 18 | 3/5 |
-| B | 30 | 26 (87 %) | 26 | 30 | 5/5 |
-| B_margin | 30 | 29 (97 %) | 29 | 30 | 5/5 |
+| A | 30 | 9 (30 %) | 29 | 10 | 2/5 |
+| A_margin | 30 | 17 (57 %) | 30 | 17 | 2/5 |
+| B | 30 | 26 (87 %) | 27 | 29 | 4/5 |
+| B_margin | 30 | 27 (90 %) | 30 | 27 | 5/5 |
 
-Headline (A) failures: #2 (boundary pick): TRULY_INFEASIBLE:U_flex_max=1.018,U_col_max=1.004; #4 (boundary pick): TRULY_INFEASIBLE:U_col_max=1.014; #7: TRULY_INFEASIBLE:U_col_max=1.014; #10: TRULY_INFEASIBLE:U_col_max=1.016; #12: TRULY_INFEASIBLE:U_flex_max=1.005,U_col_max=1.016; #16: TRULY_INFEASIBLE:U_flex_max=1.002; #18: TRULY_INFEASIBLE:U_flex_max=1.009,U_col_max=1.017; #20: TRULY_INFEASIBLE:U_flex_max=1.018; #29 (boundary pick): TRULY_INFEASIBLE:U_col_max=1.001; #32: TOLERANCE:U_flex_max |err|=0.066 > 0.05, TRULY_INFEASIBLE:U_flex_max=1.063; #33: TRULY_INFEASIBLE:U_flex_max=1.009; #38: TOLERANCE:U_col_max |err|=0.071 > 0.05, TRULY_INFEASIBLE:U_col_max=1.065; #40: TRULY_INFEASIBLE:U_col_max=1.012; #41: TRULY_INFEASIBLE:U_flex_max=1.006; #55: TOLERANCE:U_col_max |err|=0.158 > 0.05, TRULY_INFEASIBLE:U_col_max=1.115; #57: TRULY_INFEASIBLE:U_col_max=1.017; #58: TRULY_INFEASIBLE:U_flex_max=1.015; #66: TRULY_INFEASIBLE:U_flex_max=1.005; #67: TRULY_INFEASIBLE:U_col_max=1.016; #72 (boundary pick): TOLERANCE:U_col_max |err|=0.087 > 0.05, TRULY_INFEASIBLE:U_flex_max=1.023,U_col_max=1.048; #76: TRULY_INFEASIBLE:U_col_max=1.005; #80: TRULY_INFEASIBLE:U_col_max=1.019; #84 (boundary pick): TRULY_INFEASIBLE:U_flex_max=1.018,U_col_max=1.008; #91: TRULY_INFEASIBLE:U_flex_max=1.020,U_col_max=1.005; #92: TOLERANCE:U_col_max |err|=0.110 > 0.05, TRULY_INFEASIBLE:U_col_max=1.015; #95: TRULY_INFEASIBLE:U_col_max=1.017; #96: TOLERANCE:U_col_max |err|=0.190 > 0.05, TRULY_INFEASIBLE:U_col_max=1.139; #98: TRULY_INFEASIBLE:U_flex_max=1.002,U_col_max=1.003. Tolerance: utilisation +/-0.05, deflection +/-5 %.
-Whole-front check (A): 16 % truly feasible; HV gap predicted vs true 26.5 %; margin variant A + margin: 100 % truly feasible, verification pass 60 %.
+Headline (A) failures: #2 (boundary pick): TOLERANCE:U_col_max |err|=0.078 > 0.05; #5: TOLERANCE:U_flex_max |err|=0.057 > 0.05, TOLERANCE:U_col_max |err|=0.075 > 0.05; #6: TOLERANCE:U_col_max |err|=0.066 > 0.05; #10: TOLERANCE:U_flex_max |err|=0.065 > 0.05, TOLERANCE:U_col_max |err|=0.078 > 0.05; #12 (boundary pick): TOLERANCE:U_col_max |err|=0.095 > 0.05; #15: TOLERANCE:U_col_max |err|=0.069 > 0.05; #18: TOLERANCE:U_flex_max |err|=0.080 > 0.05, TOLERANCE:U_col_max |err|=0.094 > 0.05; #19: TOLERANCE:U_col_max |err|=0.097 > 0.05; #24: TOLERANCE:U_flex_max |err|=0.054 > 0.05, TOLERANCE:U_col_max |err|=0.103 > 0.05; #32: TOLERANCE:U_col_max |err|=0.128 > 0.05; #43: TOLERANCE:U_col_max |err|=0.065 > 0.05; #44: TRULY_INFEASIBLE:U_col_max=1.004; #46: TOLERANCE:U_col_max |err|=0.077 > 0.05; #55: TOLERANCE:U_col_max |err|=0.069 > 0.05; #65: TOLERANCE:U_col_max |err|=0.072 > 0.05; #71: TOLERANCE:U_flex_max |err|=0.068 > 0.05; #75 (boundary pick): TOLERANCE:U_col_max |err|=0.063 > 0.05; #80: TOLERANCE:U_col_max |err|=0.067 > 0.05; #81: TOLERANCE:U_flex_max |err|=0.063 > 0.05, TOLERANCE:U_col_max |err|=0.103 > 0.05; #98: TOLERANCE:U_flex_max |err|=0.066 > 0.05; #100: TOLERANCE:U_col_max |err|=0.083 > 0.05. Tolerance: utilisation +/-0.05, deflection +/-5 %.
+Whole-front check (A): 93 % truly feasible; HV gap predicted vs true 0.0 %; margin variant A + margin: 100 % truly feasible, verification pass 57 %.
 
 ## 7. Compute comparison
 | Config | evaluations / seed | FE solves / seed | wall / seed (s) | HV (true) | speed-up (opt. only / incl. data + training) |
 |---|---|---|---|---|---|
-| A | 60000 | 0 | 206 | 0.5022 | 3.1x / 0.93x |
-| A_margin | 60000 | 0 | 193 | 0.1943 | 3.3x / 0.95x |
-| B | 60000 | 0 | 469 | 1.1025 | 1.3x / 0.67x |
-| B_margin | 60000 | 0 | 396 | 0.8585 | 1.6x / 0.72x |
-| direct | 60000 | 5079 | 628 | 0.8823 | - |
+| A | 60000 | 0 | 165 | 0.7037 | 3.0x / 0.81x |
+| A_margin | 60000 | 0 | 123 | 0.2439 | 4.0x / 0.87x |
+| B | 60000 | 0 | 267 | 1.0760 | 1.9x / 0.70x |
+| B_margin | 60000 | 0 | 223 | 1.0313 | 2.2x / 0.74x |
+| direct | 60000 | 5953 | 498 | 1.0808 | - |
 
-One-time costs charged to the surrogate rows: data generation 15489 FE solves (about 550 s serial-equivalent) and training 1805 s.
+One-time costs charged to the surrogate rows: data generation 15489 FE solves (about 427 s serial-equivalent) and training 1805 s.
 The surrogate did NOT pay off against direct FE in this setting: an elastic frame solve is a few tens of milliseconds.
 
 ## 8. Limitations and provisional values
-* Provisional (unverified): 21 config entries (all cost rates, carbon factors, IS 456 table transcriptions): see `docs/ASSUMPTIONS.md`. Absolute INR and kgCO2e values are indicative only.
+* Provisional (unverified): 17 config entries (all cost rates, carbon factors, IS 456 table transcriptions): see `docs/ASSUMPTIONS.md`. Absolute INR and kgCO2e values are indicative only.
 * Gravity only; no seismic / wind; no foundations; beam torsion ignored; slab not designed; cracked-stiffness modifiers 0.35 / 0.70 not validated by STAAD.
 * Deflection and shear never governed in the dataset; flexure, column interaction and steel limits did.
 * Surrogate B regresses the column demands per position class (30 classes); the earlier 4-extremal-triples variant failed verification (D-024) and was replaced.

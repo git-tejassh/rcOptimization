@@ -7,7 +7,9 @@ function Md({ text }: { text: string }) {
   return <div className="prose-md overflow-x-auto" dangerouslySetInnerHTML={{ __html: marked.parse(text, { async: false }) as string }} />;
 }
 const badge = (s: string) => (
-  <span className={`tag ${s === "provisional" ? "bg-amber-200 text-amber-950" : "bg-emerald-200 text-emerald-950"}`}>{s === "provisional" ? "⚠ provisional" : "✓ " + s}</span>
+  <span className={`tag ${s === "provisional" ? "bg-amber-200 text-amber-950" : s === "secondary_source" ? "bg-sky-200 text-sky-950" : "bg-emerald-200 text-emerald-950"}`}>
+    {s === "provisional" ? "⚠ provisional" : s === "secondary_source" ? "◐ secondary source" : "✓ " + s}
+  </span>
 );
 
 export default function ProvenancePage() {

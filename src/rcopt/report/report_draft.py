@@ -31,7 +31,10 @@ def make_report() -> None:
     import pandas as pd
 
     dsf = pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset.parquet")
-    dsf = dsf[dsf.feasible == 1]
+    dsf = dsf[dsf.feasible == 1].copy()
+    from rcopt.cost_carbon.carbon import recompute_dataset_objectives
+
+    dsf["cost"], dsf["carbon"] = recompute_dataset_objectives(dsf)
     r_ds = float(dsf[["cost", "carbon"]].corr().iloc[0, 1])
     n_nd_ds = int(len(__import__("rcopt.optimize.metrics", fromlist=["non_dominated"]).non_dominated(dsf[["cost", "carbon"]].to_numpy())))
 
@@ -49,12 +52,17 @@ def make_report() -> None:
         for k, x in cc.items())
     sens_txt = sens["verdict"] if sens else "not run"
     rank1_txt = ", ".join(f"{k} {v['rank1_front_size']}" for k, v in opt.items())
+    cr, kr = opt["direct"]["cost_range_true"], opt["direct"]["carbon_range_true"]
     s1_text = (
-        "**Criterion S1 (at least 25 non-dominated points) is NOT met.** With the provisional cost and carbon data the Pareto front proper is tiny: "
-        f"among the {len(dsf)} truly feasible designs of the dataset exactly {n_nd_ds} is non-dominated, and the rank-1 sets of the optimisation runs have {rank1_txt} points. "
-        f"Cost and carbon are strongly correlated over the feasible designs (r = {r_ds:.3f}) because both follow material volume, and no variable (grade, steel grade, section) "
-        "trades one against the other with these factors. This is a finding, not something to be widened by changing rates or objectives. For verification and the full-front "
-        "check the report therefore uses a *near-Pareto set*: the first non-dominated ranks (about 100 designs) of the pooled, algorithm-feasible final populations of the "
+        "**Criterion S1 (at least 25 non-dominated points) is NOT met.** With the current inputs (provisional cost rates, Indian secondary-source carbon factors: "
+        "PPC 0.507, steel 2.5 kgCO2e/kg) the Pareto front proper is narrow: "
+        f"among the {len(dsf)} truly feasible designs of the dataset only {n_nd_ds} are non-dominated, and the rank-1 sets of the optimisation runs have {rank1_txt} points. "
+        f"Over the direct-FE near-Pareto set cost spans only INR {cr[0]:.0f} to {cr[1]:.0f} ({100 * (cr[1] / cr[0] - 1):.1f} %) and carbon {kr[0]:.0f} to {kr[1]:.0f} kgCO2e "
+        f"({100 * (kr[1] / kr[0] - 1):.1f} %). Cost and carbon are strongly correlated over the feasible designs (r = {r_ds:.3f}) because both follow material volume; the "
+        "only trade-offs that exist (more concrete to save steel, concrete grade) are worth a few per cent. Realistic carbon factors widened the front (rank-1 size 1-3 -> 3-7 points) "
+        "but not to 25 points; it was not widened by tuning rates or objectives. A genuinely wider front needs a design lever with a strong carbon-cost exchange (for example "
+        "cement type / SCM replacement), which is outside the brief's variable list. For verification and the full-front "
+        "check the report uses a *near-Pareto set*: the first non-dominated ranks (about 100 designs) of the pooled, algorithm-feasible final populations of the "
         "five seeds (decision D-025)."
     )
     near_text = (
@@ -148,7 +156,7 @@ See the numbers above; the claims supported are: (i) the FE + IS 456 pipeline re
 
 1. **Why a surrogate if one FE solve takes only {1e3 * cmp_['mean_fe_solve_time_s_single_process']:.0f} ms?** It may not be worth it, and the project measures that: speed-up {cc['A']['speedup_optimisation_only']:.1f}x for the optimisation alone and {cc['A']['speedup_vs_direct_incl_datagen_and_training']:.2f}x including data generation and training (`compute_comparison.json`). The brief asked for a surrogate; the direct-FE baseline is the honest test. The surrogate would matter for a larger model (more storeys, nonlinear or seismic load cases).
 2. **Why not seismic?** Brief s5 defers it; the optimum is gravity-only. The STAAD report shows 57 of 133 columns governed by seismic cases, so the optimum is not a compliant design (`docs/SEISMIC_EXTENSION.md`).
-3. **Why is the front narrow?** Cost and carbon both follow material volume (r = {r_ds:.3f} over the feasible dataset). With the provisional rates and factors no variable trades one against the other, so the Pareto front proper is only 1-4 points (criterion S1 not met); the finding is reported, and rates were not distorted to widen it.
+3. **Why is the front narrow?** Cost and carbon both follow material volume (r = {r_ds:.3f} over the feasible dataset). Only small trade-offs exist (a few per cent in cost and carbon), so the Pareto front proper is only 3-7 points (criterion S1 not met); the finding is reported, and rates were not distorted to widen it.
 4. **How do you know the IS checks are right?** Anchor tests (Mu,lim/bd2 2.76 / 3.45 / 4.14, Tables 19-20 spot values), independent hand calculations (`docs/hand_calcs`), and STAAD's own column-81 design numbers reproduced (Puz 2901.43 kN, Muz1 150.87 kN.m within 1.5 %, IR 0.39). The IS table transcriptions are still marked provisional until you check them against the printed code.
 5. **How do you know the FE is right?** Closed-form beam tests and equilibrium checks, and a benchmark against your STAAD model: reactions to {_p(b_last['reactions_Fy']['DL']['max_rel'], 4)}, column axial force {_p(b_last['columns_Pu']['max_rel'], 4)}, column moments {_p(b_last['columns_Mz_ge20kNm']['max_rel'], 2)} (`docs/BENCHMARK.md`).
 6. **Why OpenSees and not STAAD in the loop?** Brief s7: STAAD needs a licence, is slow to drive, and cannot run on any OS. STAAD is used as geometry source and benchmark only. The legacy STAAD-driven optimiser was archived because it had fixed demands and a single-point front (`docs/LEGACY_AUDIT.md`).

@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from rcopt import config
 from rcopt.config import ROOT
+from rcopt.cost_carbon.carbon import recompute_dataset_objectives
 from rcopt.design.describe import describe_genome
 from rcopt.design.variables import default_space
 from rcopt.optimize.metrics import objective_correlation
@@ -135,7 +136,7 @@ def _findings(ds: pd.DataFrame, sm: dict, ver: dict, ff: dict, cmp_: dict, opt: 
     feas = ds[ds.feasible == 1]
     corr = float(feas[["cost", "carbon"]].corr().iloc[0, 1])
     n1 = {k: v["rank1_front_size"] for k, v in opt.items()}
-    f.append({"level": "bad" if max(n1.values()) < 25 else "info", "text": f"Pareto front proper: {n1} non-dominated points per configuration (criterion S1, at least 25, NOT met). Cost and carbon are strongly correlated over the {len(feas)} truly feasible designs (r = {corr:.3f}) because both follow material volume; the dashboard therefore shows the near-Pareto set (first non-dominated ranks, about 100 designs)."})
+    f.append({"level": "bad" if max(n1.values()) < 25 else "info", "text": f"Pareto front proper: {n1} non-dominated points per configuration (criterion S1, at least 25, NOT met). Cost and carbon are strongly correlated over the {len(feas)} truly feasible designs (r = {corr:.3f}) because both follow material volume; cost varies only {100 * (opt['direct']['cost_range_true'][1] / opt['direct']['cost_range_true'][0] - 1):.1f} % and carbon {100 * (opt['direct']['carbon_range_true'][1] / opt['direct']['carbon_range_true'][0] - 1):.1f} % across the direct-FE near-Pareto set. The dashboard shows that near-Pareto set (first non-dominated ranks, about 100 designs)."})
     c = cmp_["compute"]["configs"]
     sp = c["A"]["speedup_vs_direct_incl_datagen_and_training"]
     f.append({"level": "info" if sp > 1 else "warn", "text": f"Compute: a cold FE solve takes {1e3 * cmp_['compute']['mean_fe_solve_time_s_single_process']:.0f} ms; the surrogate-driven NSGA-II is "
@@ -154,6 +155,8 @@ def export_all() -> dict:
     geom, ds_cfg = config.geometry(), config.design_space()
     ds = pd.concat([pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset.parquet"),
                     pd.read_parquet(ROOT / "data" / "processed" / "fe_dataset_al.parquet")], ignore_index=True)
+    ok_rows = ds.status == "OK"
+    ds.loc[ok_rows, "cost"], ds.loc[ok_rows, "carbon"] = recompute_dataset_objectives(ds[ok_rows])   # current rates / factors
     sm, ver_raw = _load("surrogate_metrics.json"), _load("verification.json")
     ff, opt = _load("full_front_check.json"), _load("optimization_summary.json")
     cmp_ = {"compute": _load("compute_comparison.json")}

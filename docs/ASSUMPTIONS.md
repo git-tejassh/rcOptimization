@@ -44,11 +44,11 @@ No verified rate was available offline. Values are the chat examples in `legacy/
 Fe415 = Fe500 - 2 INR/kg. **Owner: replace with current Bhopal prices (Essco price list / MP PWD SOR / CPWD DSR).**
 Cost *level* is not meaningful until you do; the Pareto *shape* depends on the ratios (steel/concrete) so run the sensitivity page.
 
-## D. Embodied-carbon factors (`config/carbon_factors.yaml`) - ALL PROVISIONAL
+## D. Embodied-carbon factors (`config/carbon_factors.yaml`)
 
-OPC 0.91 kgCO2e/kg (approx. ICE v3.0 CEM I), PPC 0.65 (assumed), concrete = cement content (330-450 kg/m3 by grade, typical mixes) x cement factor + 12 kgCO2e/m3 other
-+ A4 transport; steel 1.8 kgCO2e/kg (chat example; India's BF-BOF / EAF / DRI-induction mix NOT reflected); A4 distances assumed (30 km concrete, 500 km steel).
-Formwork carbon excluded. Details and gaps: `docs/CARBON_DATA_AUDIT.md`.
+Since 2026-10-04 cement (PPC 0.507, OPC 0.92 kgCO2e/kg) and reinforcement (2.5 kgCO2e/kg) use Indian **secondary-source** values (`status: secondary_source`; not EPDs, owner should replace with supplier EPDs).
+STILL PROVISIONAL: cement content per grade (360-450 kg/m3), other concrete constituents (12 kgCO2e/m3), A4 transport (30 km concrete, 500 km steel, 0.11 kgCO2e/(t km)). Formwork carbon excluded.
+Details and sources: `docs/CARBON_DATA_AUDIT.md`.
 
 ## E. STAAD benchmark (see `docs/BENCHMARK.md`)
 

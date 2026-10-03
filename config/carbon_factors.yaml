@@ -1,10 +1,11 @@
 # Embodied-carbon factors, scope A1-A4 (cradle-to-site) for frame materials. Formwork carbon EXCLUDED (flagged).
-# Every value below is PROVISIONAL: not verified against ICE v3.0 / an Indian EPD. See docs/CARBON_DATA_AUDIT.md.
+# Cement and steel factors come from Indian secondary sources (status: secondary_source, not an EPD); cement content per grade,
+# other constituents and transport are still PROVISIONAL. See docs/CARBON_DATA_AUDIT.md.
 scope: A1-A4
 cement:
-  default: OPC
-  OPC: {value: 0.91, unit: kgCO2e/kg, source: "approx. ICE v3.0 CEM I (recalled, not re-checked)", confidence: medium, india_specific: false, status: provisional}
-  PPC: {value: 0.65, unit: kgCO2e/kg, source: "assumed ~30 % fly-ash blend; no source", confidence: low, india_specific: false, status: provisional}
+  default: PPC          # Portland Pozzolana Cement is the dominant cement in Indian RCC practice
+  OPC: {value: 0.92, unit: kgCO2e/kg, source: "India OPC range 893-940 kg CO2/t cement, five zones (Indian OPC/blended-cement study, secondary source; mid-value)", confidence: medium, india_specific: true, status: secondary_source}
+  PPC: {value: 0.507, unit: kgCO2e/kg, source: "India PPC about 507 kg CO2/t cement (31 % below OPC; same study via CEEW/GCCA India reporting; secondary source)", confidence: medium, india_specific: true, status: secondary_source}
 cement_content_kg_m3:       # typical mix designs (IS 10262 style); IS 456 Table 5 minimum 300-340 kg/m3
   M20: {value: 330, source: "typical mix; no source", status: provisional}
   M25: {value: 360, source: "typical mix; no source", status: provisional}
@@ -18,8 +19,8 @@ concrete_other_kgCO2e_m3:   # aggregates, water, admixture, batching
   source: "assumed (aggregates ~1850 kg/m3 x ~0.005-0.0075 kgCO2e/kg); no source"
   status: provisional
 steel:
-  Fe500: {value: 1.8, unit: kgCO2e/kg, source: "legacy/context.txt chat example (unverified); Indian route mix (BF-BOF/EAF/DRI-induction) not reflected", confidence: low, india_specific: false, status: provisional}
-  Fe415: {value: 1.8, unit: kgCO2e/kg, source: "same as Fe500 (no grade-specific factor found)", confidence: low, india_specific: false, status: provisional}
+  Fe500: {value: 2.5, unit: kgCO2e/kg, source: "India steel sector 2.55 tCO2/t crude steel (CEEW); major producers 2.53 and other producers 2.02 tCO2/t in 2023-24; 2.5 used for TMT rebar, A1-A3 crude-steel basis (secondary source)", confidence: medium, india_specific: true, status: secondary_source}
+  Fe415: {value: 2.5, unit: kgCO2e/kg, source: "same as Fe500 (no grade-specific factor exists; the production route, not the grade, drives the factor)", confidence: medium, india_specific: true, status: secondary_source}
 transport_A4:
   concrete: {distance_km: 30,  factor_kgCO2e_per_t_km: 0.11, source: "assumed ready-mix plant 30 km; factor approx. rigid HGV (unverified)", status: provisional}
   steel:    {distance_km: 500, factor_kgCO2e_per_t_km: 0.11, source: "assumed mill-to-Bhopal 500 km; unverified", status: provisional}
