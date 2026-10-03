@@ -1,0 +1,307 @@
+{
+ "genes": [
+  {
+   "name": "B0_b",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450
+   ]
+  },
+  {
+   "name": "B0_D",
+   "options": [
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700,
+    750
+   ]
+  },
+  {
+   "name": "B0_bd",
+   "options": [
+    12,
+    16,
+    20,
+    25
+   ]
+  },
+  {
+   "name": "B0_bn",
+   "options": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "name": "B0_td",
+   "options": [
+    12,
+    16,
+    20,
+    25
+   ]
+  },
+  {
+   "name": "B0_tn",
+   "options": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "name": "B1_b",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450
+   ]
+  },
+  {
+   "name": "B1_D",
+   "options": [
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700,
+    750
+   ]
+  },
+  {
+   "name": "B1_bd",
+   "options": [
+    12,
+    16,
+    20,
+    25
+   ]
+  },
+  {
+   "name": "B1_bn",
+   "options": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "name": "B1_td",
+   "options": [
+    12,
+    16,
+    20,
+    25
+   ]
+  },
+  {
+   "name": "B1_tn",
+   "options": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "name": "C0_b",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600
+   ]
+  },
+  {
+   "name": "C0_D",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600
+   ]
+  },
+  {
+   "name": "C0_dia",
+   "options": [
+    12,
+    16,
+    20,
+    25,
+    32
+   ]
+  },
+  {
+   "name": "C0_n",
+   "options": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    16
+   ]
+  },
+  {
+   "name": "C1_b",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600
+   ]
+  },
+  {
+   "name": "C1_D",
+   "options": [
+    230,
+    250,
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600
+   ]
+  },
+  {
+   "name": "C1_dia",
+   "options": [
+    12,
+    16,
+    20,
+    25,
+    32
+   ]
+  },
+  {
+   "name": "C1_n",
+   "options": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    16
+   ]
+  },
+  {
+   "name": "fck",
+   "options": [
+    "M20",
+    "M25",
+    "M30",
+    "M35",
+    "M40"
+   ]
+  },
+  {
+   "name": "fy",
+   "options": [
+    "Fe415",
+    "Fe500"
+   ]
+  }
+ ],
+ "n_genes": 22,
+ "total_combinations": 130661359718400000,
+ "beam_groups": [
+  [
+   0,
+   1,
+   2
+  ],
+  [
+   3,
+   4
+  ]
+ ],
+ "column_groups": [
+  [
+   0,
+   1
+  ],
+  [
+   2,
+   3
+  ]
+ ],
+ "cover_mm": {
+  "exposure": "moderate",
+  "beam": 30.0,
+  "column": 40.0
+ },
+ "config_hash": "67e1326c5bae49c9",
+ "provisional_items": [
+  "cost_rates.concrete_per_m3.M20",
+  "cost_rates.concrete_per_m3.M25",
+  "cost_rates.concrete_per_m3.M30",
+  "cost_rates.concrete_per_m3.M35",
+  "cost_rates.concrete_per_m3.M40",
+  "cost_rates.steel_per_kg.Fe500",
+  "cost_rates.steel_per_kg.Fe415",
+  "cost_rates.formwork_per_m2",
+  "carbon_factors.cement.OPC",
+  "carbon_factors.cement.PPC",
+  "carbon_factors.cement_content_kg_m3.M20",
+  "carbon_factors.cement_content_kg_m3.M25",
+  "carbon_factors.cement_content_kg_m3.M30",
+  "carbon_factors.cement_content_kg_m3.M35",
+  "carbon_factors.cement_content_kg_m3.M40",
+  "carbon_factors.concrete_other_kgCO2e_m3",
+  "carbon_factors.steel.Fe500",
+  "carbon_factors.steel.Fe415",
+  "carbon_factors.transport_A4.concrete",
+  "carbon_factors.transport_A4.steel",
+  "is456_tables"
+ ]
+}

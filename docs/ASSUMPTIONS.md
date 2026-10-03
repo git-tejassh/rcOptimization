@@ -50,6 +50,19 @@ OPC 0.91 kgCO2e/kg (approx. ICE v3.0 CEM I), PPC 0.65 (assumed), concrete = ceme
 + A4 transport; steel 1.8 kgCO2e/kg (chat example; India's BF-BOF / EAF / DRI-induction mix NOT reflected); A4 distances assumed (30 km concrete, 500 km steel).
 Formwork carbon excluded. Details and gaps: `docs/CARBON_DATA_AUDIT.md`.
 
-## E. STAAD benchmark gaps (see `docs/BENCHMARK.md`)
+## E. STAAD benchmark (see `docs/BENCHMARK.md`)
 
-Filled in after P0b.
+OpenSees (benchmark mode) reproduces STAAD's gravity results: reactions and vertical displacements to 0.001 %, column axial forces to 0.003 %,
+column moments (> 20 kN.m) to 0.13 %. Two effects were needed and are documented there (wall-load eccentricity torque, shear deformation).
+**Not validated by STAAD:** the cracked-stiffness modifiers (0.35 / 0.70), Ec = 5000 sqrt(fck), depth-following wall loads, beam end forces
+(STAAD beam design was aborted), anything seismic/wind. Owner must decide whether 0.35 Ig / 0.70 Ig is the stiffness they want to defend.
+
+## F. Additional modelling choices added during P0b
+| # | Item | Choice | Status |
+|---|---|---|---|
+| F1 | Beam / column stiffness for torsion J | same factor as the flexural modifier | chosen |
+| F2 | Genome repair (D-012) | deterministic snapping to a buildable discrete design | chosen |
+| F3 | Column design moments | worst end moment of each member, emin applied about both axes simultaneously (conservative), slender-column additional moment per cl. 39.7.1 | chosen |
+| F4 | Stub columns (1.0 m, fixed at y = -1) are checked like columns, l = 1.0 m | chosen | |
+| F5 | Quantities: stirrups at the governing spacing along the whole beam, column ties around the perimeter only (no cross-ties), lap allowances 40 phi (beams) / 50 phi per storey (columns) | chosen (conservative for beams, unconservative for column cross-ties) | |
+| F6 | Deflection integration by trapezoid rule on 201 points (closed-form test error < 0.2 %) | chosen | |

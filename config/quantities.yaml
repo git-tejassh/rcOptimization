@@ -1,0 +1,9 @@
+# Rules for material quantities (project.md 9.1). All are modelling choices (status: chosen), see docs/ASSUMPTIONS.md.
+beam_lap_dia_multiple: 40       # lap/anchorage allowance added once per beam bar (x bar dia)
+column_lap_dia_multiple: 50     # lap added per storey per column bar (x bar dia)
+hook_dia_multiple: 9            # stirrup / tie hook length each (IS 456 cl. 26.2.2.2 style), minimum below
+hook_min_mm: 75
+beam_side_formwork_net_of_slab: true
+slab_thickness_for_formwork_mm: 150
+column_tie_pitch_max_mm: 300    # cl. 26.5.3.2 (c): pitch <= min(b, 16 x bar dia, 300 mm)
+column_extra_ties: false        # intermediate cross-ties for bars beyond the corners are NOT counted (flagged)

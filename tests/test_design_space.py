@@ -35,7 +35,8 @@ def test_roundtrip():
     sp = default_space()
     rng = np.random.default_rng(0)
     for g in sp.random_genomes(200, rng):
-        assert np.array_equal(sp.encode(sp.decode(g)), g)
+        assert np.array_equal(sp.encode(sp.decode(g, repair=False)), g)        # exact without repair
+        assert np.array_equal(sp.encode(sp.decode(g)), sp.repair(g))           # canonical genome with repair
 
 
 def test_decode_rejects_out_of_range():
@@ -83,7 +84,7 @@ def _design(sp, **over):
                 B1_td=1, B1_tn=2, C0_b=5, C0_D=5, C0_dia=2, C0_n=2, C1_b=5, C1_D=5, C1_dia=2, C1_n=2,
                 fck=2, fy=1)
     base.update(over)
-    return sp.decode([base[n] for n in sp.gene_names])
+    return sp.decode([base[n] for n in sp.gene_names], repair=False)
 
 
 def test_geometry_reference_design_ok():

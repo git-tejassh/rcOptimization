@@ -124,6 +124,7 @@ class DetailingCfg(_Strict):
 
 
 class DesignSpaceCfg(_Strict):
+    repair: bool = True
     beam: BeamSpace
     column: ColumnSpace
     global_: GlobalSpace = Field(alias="global")

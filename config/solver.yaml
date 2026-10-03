@@ -3,12 +3,15 @@ fe:
   column_stiffness_factor: 0.70
   ec_factor: 5000.0                # Ec = 5000*sqrt(fck) MPa, IS 456 cl. 6.2.3.1
   poisson: 0.17
+  shear_deformation: true          # ElasticTimoshenkoBeam (shear area 5/6 A); STAAD includes shear deformation
   equilibrium_tol: 1.0e-3          # sum of vertical reactions vs total load (relative)
   n_jobs: auto                     # cpu_count - 1
 benchmark:                         # STAAD-matching mode (no modifiers; STAAD default material)
-  E_kNm2: 2.17184e7
+  E_kNm2: 2.17184e+7
   density_kNm3: 23.5615
+  wall_eccentricity_m: 0.15        # STAAD member-load offset d3 (torque); direction = local +z (X-beams +Z, Z-beams -X)
   poisson: 0.17
+  shear_deformation: true
   beam_stiffness_factor: 1.0
   column_stiffness_factor: 1.0
 checks:

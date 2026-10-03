@@ -24,10 +24,10 @@ testpaths = ["tests"]
 markers = ["slow: heavy tests (FE batches, training) - deselect with -m 'not slow'"]
 
 [tool.ruff]
-line-length = 110
+line-length = 125
 src = ["src", "tests", "api", "scripts"]
 extend-exclude = ["legacy", "web", ".claude"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B"]
-ignore = ["E741", "B008"]
+ignore = ["E741", "B008", "E501"]

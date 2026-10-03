@@ -45,5 +45,23 @@ def phase0() -> None:
                f"{len(out['provisional_items'])} provisional config items ({time.time() - t0:.1f}s)")
 
 
+@app.command()
+def phase0b() -> None:
+    """P0b: FE/IS-456 validation: STAAD benchmark report, hand-calc documents, anchor tests."""
+    import subprocess
+    import sys
+
+    from rcopt.fe.benchmark import write_report
+
+    full = write_report()
+    typer.echo(f"benchmark: reactions max rel diff {full['reactions_Fy']['DL']['max_rel']:.2e}, "
+               f"column Pu {full['columns_Pu']['max_rel']:.2e} -> docs/BENCHMARK.md")
+    subprocess.run([sys.executable, str(ROOT / "docs" / "hand_calcs" / "hand_calcs.py")], check=True)
+    code = subprocess.run([sys.executable, "-m", "pytest", "-q", "-m", "not slow", "tests/test_is456_anchors.py",
+                           "tests/test_fe_sanity.py", "tests/test_benchmark.py"], cwd=ROOT).returncode
+    if code:
+        raise typer.Exit(code)
+
+
 if __name__ == "__main__":
     app()

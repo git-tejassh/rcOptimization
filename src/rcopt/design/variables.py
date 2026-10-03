@@ -98,14 +98,25 @@ class DesignSpace:
         self._index = {n: i for i, n in enumerate(names)}
 
     # ------------------------------------------------------------------ encode / decode
-    def decode(self, genome) -> Design:
-        """Genome (integer indices) -> Design. Raises ValueError for out-of-range indices."""
+    def repair(self, genome) -> np.ndarray:
+        """Nearest buildable genome (see ``rcopt.design.repair``); identity for feasible genomes."""
+        from rcopt.design.repair import repair_genome
+        return repair_genome(self, genome)
+
+    def decode(self, genome, repair: bool | None = None) -> Design:
+        """Genome (integer indices) -> Design. Raises ValueError for out-of-range indices.
+
+        With ``repair`` (default: ``design_space.yaml: repair``) the genome is first snapped to the nearest
+        buildable design; pass ``repair=False`` to decode the raw genome exactly.
+        """
         g = [int(x) for x in genome]
         if len(g) != self.n_genes:
             raise ValueError(f"genome length {len(g)} != {self.n_genes}")
         for i, (v, n) in enumerate(zip(g, self.n_options, strict=True)):
             if not 0 <= v < n:
                 raise ValueError(f"gene {self.gene_names[i]}={v} outside 0..{n - 1}")
+        if self.cfg.repair if repair is None else repair:
+            g = [int(x) for x in self.repair(g)]
         val = [self.options[i][v] for i, v in enumerate(g)]
         k = 0
         beams = []
