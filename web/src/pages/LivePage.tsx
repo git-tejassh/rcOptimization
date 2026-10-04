@@ -33,7 +33,7 @@ export default function LivePage() {
   if (!up)
     return (
       <div className="space-y-3">
-        <h1 className="h1">Live evaluator (local only)</h1>
+        <PageHeader eyebrow="Local tool" title="Live evaluator" lead="Pick any design and compare the surrogate prediction with the exact finite-element result. This tool needs the local API, so it is switched off on a static site." />
         <div className="card border-amber-500">
           <p className="text-sm">
             The live evaluator needs the local FastAPI server (surrogate models + OpenSees) which cannot run on a static / Vercel deployment. No API was found

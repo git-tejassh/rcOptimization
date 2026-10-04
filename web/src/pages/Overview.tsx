@@ -10,8 +10,8 @@ export default function Overview() {
     <div className="space-y-5">
       <PageHeader
         eyebrow="Project summary"
-        title={meta.project}
-        lead="A reproducible tool that searches for RC frame designs that are cheap and low in embodied carbon while passing the IS 456 checks, and measures how far a machine-learning shortcut can be trusted."
+        title="Optimising an RC frame for cost and embodied carbon"
+        lead={`${meta.project}. A reproducible tool that searches for RC frame designs that are cheap and low in embodied carbon while passing the IS 456 checks, and measures how far a machine-learning shortcut can be trusted.`}
         howTo={[
           "The cards give the headline numbers: data analysed, designs found, how well they were verified, and the speed-up.",
           "“What the results say” lists the findings in plain words, including the unfavourable ones.",

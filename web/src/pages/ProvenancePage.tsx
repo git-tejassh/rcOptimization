@@ -4,8 +4,11 @@ import { useData } from "../data";
 import PageHeader from "../components/PageHeader";
 import { download } from "../format";
 
+/** The page owns the single H1 (its hero): headings inside the embedded documents are shifted down one level. */
+const demote = (h: string) => h.replace(/<(\/?)h3/g, "<$1h4").replace(/<(\/?)h2/g, "<$1h3").replace(/<(\/?)h1/g, "<$1h2");
+
 function Md({ text }: { text: string }) {
-  return <div className="prose-md overflow-x-auto" dangerouslySetInnerHTML={{ __html: marked.parse(text, { async: false }) as string }} />;
+  return <div className="prose-md overflow-x-auto" dangerouslySetInnerHTML={{ __html: demote(marked.parse(text, { async: false }) as string) }} />;
 }
 const badge = (s: string) => (
   <span className={`tag ${s === "provisional" ? "bg-amber-200 text-amber-950" : s === "secondary_source" ? "bg-sky-200 text-sky-950" : "bg-emerald-200 text-emerald-950"}`}>
