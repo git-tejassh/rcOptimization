@@ -4,7 +4,7 @@ A genome is a vector of integer indices into the option lists of ``config/design
 
     per beam group  g : B{g}_b, B{g}_D, B{g}_bd, B{g}_bn, B{g}_td, B{g}_tn
     per column group g: C{g}_b, C{g}_D, C{g}_dia, C{g}_n
-    global            : fck, fy
+    global            : fck, fy, cement
 
 Units: mm and MPa everywhere in this module (``_mm`` / ``_MPa`` suffixes).
 """
@@ -53,6 +53,7 @@ class Design:
     steel: str
     fck_MPa: float
     fy_MPa: float
+    cement: str = "PPC"
 
     def size_key(self) -> tuple:
         """Everything the elastic FE response depends on (sizes + concrete grade; NOT reinforcement)."""
@@ -89,10 +90,10 @@ class DesignSpace:
             for gene, opts in zip(COL_GENES, (cs.b_mm, cs.D_mm, cs.bar_dia_mm, cs.bar_count), strict=True):
                 names.append(f"C{g}_{gene}")
                 options.append(list(opts))
-        names += ["fck", "fy"]
+        names += ["fck", "fy", "cement"]
         min_fck = self.fck_of[self.cfg.exposure_requirements[self.cfg.cover_mm.exposure]["min_grade"]]
         grades = [g for g in gs.concrete_grade if self.fck_of[g] >= min_fck]       # IS 456 Table 5 minimum grade
-        options += [grades, list(gs.steel_grade)]
+        options += [grades, list(gs.steel_grade), list(gs.cement_type)]
         self.gene_names: tuple[str, ...] = tuple(names)
         self.options: tuple[tuple, ...] = tuple(tuple(o) for o in options)
         self.n_options = np.array([len(o) for o in options], dtype=int)
@@ -129,9 +130,9 @@ class DesignSpace:
         for _ in range(self.n_cg):
             cols.append(ColumnSection(*val[k:k + 4]))
             k += 4
-        conc, steel = val[k], val[k + 1]
+        conc, steel, cement = val[k], val[k + 1], val[k + 2]
         fck, fy = float(self.fck_of[conc]), float(self.fy_of[steel])
-        return Design(tuple(beams), tuple(cols), conc, steel, fck, fy)
+        return Design(tuple(beams), tuple(cols), conc, steel, fck, fy, cement)
 
     def encode(self, design: Design) -> np.ndarray:
         """Design -> genome (inverse of ``decode``; ValueError if a value is not an option)."""
@@ -140,7 +141,7 @@ class DesignSpace:
             vals += [b.b_mm, b.D_mm, b.bot_dia_mm, b.bot_n, b.top_dia_mm, b.top_n]
         for c in design.columns:
             vals += [c.b_mm, c.D_mm, c.dia_mm, c.n]
-        vals += [design.concrete, design.steel]
+        vals += [design.concrete, design.steel, design.cement]
         return np.array([self.options[i].index(v) for i, v in enumerate(vals)], dtype=int)
 
     def physical(self, genome) -> np.ndarray:
@@ -152,6 +153,8 @@ class DesignSpace:
                 opt = self.fck_of[opt]
             elif self.gene_names[i] == "fy":
                 opt = self.fy_of[opt]
+            elif self.gene_names[i] == "cement":
+                opt = int(v)                      # categorical: the option index
             out[i] = opt
         return out
 

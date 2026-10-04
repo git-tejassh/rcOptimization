@@ -58,7 +58,7 @@ export default function DesignDrawer({ d, label, onClose }: { d: ParetoDesign; l
         )}
         <table className="t">
           <tbody>
-            <tr><td>Concrete / steel</td><td>{d.concrete} / {d.steel}</td></tr>
+            <tr><td>Concrete / steel / cement</td><td>{d.concrete} / {d.steel} / {d.cement}</td></tr>
             {d.beams.map((b) => (
               <tr key={`b${b.group}`}><td>Beam group {b.group}</td><td>{b.b_mm} × {b.D_mm} mm · bottom {b.bottom} · top {b.top} · {b.stirrups}{d.stirrup_spacing_mm ? ` @ ${d.stirrup_spacing_mm[b.group]} mm` : ""}</td></tr>
             ))}

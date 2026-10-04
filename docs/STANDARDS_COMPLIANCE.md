@@ -10,6 +10,7 @@ and still need the owner's check against the printed code (`docs/ASSUMPTIONS.md`
 | Cover | Table 16 (moderate: 30 mm beams) and cl. 26.4.2.1 (columns 40 mm) | `design_space.yaml` |
 | Bar diameters | IS 1786 standard sizes (12, 16, 20, 25, 32 mm) | option lists; tested |
 | Steel grades | Fe415, Fe500 (IS 1786) | option lists (Fe500D ductility class not distinguished) |
+| Cement types | OPC (IS 269), PPC (IS 1489 Part 1), PSC (IS 455), all permitted by IS 456 cl. 5.1 | option list; the Table 5 minimum cement content is met by the assumed mixes. Strength gain of PPC / PSC (28-day grade is what IS 456 designs for) and striking times are not modelled |
 | Loads | IS 875 Part 1 (RC 25 kN/m3, masonry 20 kN/m3), Part 2 (residential 2.0, roof 1.5 kN/m2) | `loads.yaml` |
 | Load combination | Table 18 / cl. 36.4: 1.5 (DL + LL) strength, 1.0 (DL + LL) service | `loads.yaml` |
 | Beam flexure | cl. 38.1, Annex G (xu <= xu,max, doubly reinforced by strain compatibility) | `codes/beam.py` |

@@ -4,6 +4,7 @@ import type {
   DesignSpaceData,
   Meta,
   ParetoData,
+  CementData,
   ProvenanceData,
   SensitivityData,
   SurrogateData,
@@ -18,6 +19,7 @@ export interface AllData {
   verification: VerificationData;
   compute: ComputeData;
   sensitivity: SensitivityData | null;
+  cement: CementData | null;
   provenance: ProvenanceData;
   benchmark: Record<string, any>;
 }
@@ -50,7 +52,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [meta, space, pareto, surrogate, verification, compute, sensitivity, provenance, benchmark] = await Promise.all([
+        const [meta, space, pareto, surrogate, verification, compute, sensitivity, cement, provenance, benchmark] = await Promise.all([
           get<Meta>("meta"),
           get<DesignSpaceData>("design_space"),
           get<ParetoData>("pareto"),
@@ -58,12 +60,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
           get<VerificationData>("verification"),
           get<ComputeData>("compute"),
           get<SensitivityData>("sensitivity", true),
+          get<CementData>("cement", true),
           get<ProvenanceData>("provenance"),
           get<Record<string, any>>("benchmark"),
         ]);
         setData({
           meta: meta!, space: space!, pareto: pareto!, surrogate: surrogate!, verification: verification!,
-          compute: compute!, sensitivity, provenance: provenance!, benchmark: benchmark!,
+          compute: compute!, sensitivity, cement, provenance: provenance!, benchmark: benchmark!,
         });
       } catch (e) {
         setErr(String(e));

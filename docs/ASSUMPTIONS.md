@@ -50,6 +50,9 @@ Since 2026-10-04 cement (PPC 0.507, OPC 0.92 kgCO2e/kg) and reinforcement (2.5 k
 STILL PROVISIONAL: cement content per grade (360-450 kg/m3), other concrete constituents (12 kgCO2e/m3), A4 transport (30 km concrete, 500 km steel, 0.11 kgCO2e/(t km)). Formwork carbon excluded.
 Details and sources: `docs/CARBON_DATA_AUDIT.md`.
 
+## D2. Cement type (design variable, D-028)
+Cement prices OPC 7.9 / PPC 7.5 / PSC 7.3 INR/kg (mid of 2026 market-listing ranges, secondary, PROVISIONAL); concrete rates are taken to assume PPC. Cement content per grade is the same for all types (PPC/PSC may need more cement for the same early strength: not modelled). PSC availability in central India is limited: not modelled.
+
 ## E. STAAD benchmark (see `docs/BENCHMARK.md`)
 
 OpenSees (benchmark mode) reproduces STAAD's gravity results: reactions and vertical displacements to 0.001 %, column axial forces to 0.003 %,

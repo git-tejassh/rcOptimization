@@ -103,7 +103,7 @@ class DirectFEEvaluator(Evaluator):
 
 
 class RCProblem(Problem):
-    """Two objectives, seven inequality constraints over the 22 integer genes."""
+    """Two objectives, seven inequality constraints over the 23 integer genes."""
 
     def __init__(self, evaluator: Evaluator, space: DesignSpace | None = None):
         space = space or default_space()

@@ -16,3 +16,10 @@ formwork_per_m2:
   source: "legacy/context.txt chat example (unverified)"
   date: "2026-10"
   status: provisional
+# Cement price by type (INR per kg). The concrete rates above are taken to correspond to the baseline cement; a design that
+# uses another type pays (price - baseline price) x cement content of its grade per m3 (IS 10262 style content, carbon_factors.yaml).
+cement_price_per_kg:
+  baseline: PPC
+  OPC: {value: 7.9, unit: INR/kg, source: "mid of INR 360-430 per 50 kg bag quoted for OPC 53 in 2026 market listings (secondary, unverified)", date: "2026-10", status: provisional}
+  PPC: {value: 7.5, unit: INR/kg, source: "mid of INR 340-410 per 50 kg bag quoted for PPC (secondary, unverified)", date: "2026-10", status: provisional}
+  PSC: {value: 7.3, unit: INR/kg, source: "mid of INR 330-400 per 50 kg bag quoted for PSC (secondary, unverified); availability in central India is limited", date: "2026-10", status: provisional}

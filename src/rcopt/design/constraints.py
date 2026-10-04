@@ -124,8 +124,8 @@ def evaluate_from_demands(design: Design, beam_dem: np.ndarray, col_sets: list[n
         ucol_g.append(u)
     sv = tuple(b.sv_mm for b in bchecks)
     q = compute_quantities(design, sv)
-    cp = cost_inr(q, design.concrete, design.steel)
-    cb = carbon_kgco2e(q, design.concrete, design.steel)
+    cp = cost_inr(q, design.concrete, design.steel, cement=design.cement)
+    cb = carbon_kgco2e(q, design.concrete, design.steel, cement=design.cement)
     return Evaluation(
         "OK", "", 0.0,
         U_flex_g=tuple(b.U_flex for b in bchecks), U_shear_g=tuple(b.U_shear for b in bchecks),
@@ -139,8 +139,8 @@ def evaluate_from_demands(design: Design, beam_dem: np.ndarray, col_sets: list[n
 def analytic_objectives(design: Design, sv_mm: tuple[float, ...]) -> tuple[float, float, Quantities]:
     """(cost, carbon, quantities) for given stirrup spacings (used by the surrogate-driven optimizer)."""
     q = compute_quantities(design, sv_mm)
-    return cost_inr(q, design.concrete, design.steel)["total"], carbon_kgco2e(
-        q, design.concrete, design.steel)["total"], q
+    return cost_inr(q, design.concrete, design.steel, cement=design.cement)["total"], carbon_kgco2e(
+        q, design.concrete, design.steel, cement=design.cement)["total"], q
 
 
 def analytic_constraints(design: Design) -> tuple[float, float]:

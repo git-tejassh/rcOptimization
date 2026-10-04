@@ -20,7 +20,7 @@ def describe_genome(genome, space: DesignSpace | None = None) -> dict:
     design = space.decode(genome)
     out: dict = {
         "genome": [int(x) for x in genome],
-        "concrete": design.concrete, "steel": design.steel,
+        "concrete": design.concrete, "steel": design.steel, "cement": design.cement,
         "beams": [{"group": g, "b_mm": b.b_mm, "D_mm": b.D_mm, "bottom": f"{b.bot_n}-{b.bot_dia_mm} mm",
                    "top": f"{b.top_n}-{b.top_dia_mm} mm", "stirrups": f"{config.design_space().beam.stirrup_legs}-L "
                    f"{config.design_space().beam.stirrup_dia_mm} mm"} for g, b in enumerate(design.beams)],

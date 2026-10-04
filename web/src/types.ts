@@ -64,6 +64,7 @@ export interface ParetoDesign {
   genome: number[];
   concrete: string;
   steel: string;
+  cement: string;
   beams: BeamDesc[];
   columns: ColDesc[];
   pred_cost: number;
@@ -201,6 +202,20 @@ export interface SensitivityData {
     front: { cost: number; carbon: number }[];
   }[];
   verdict: string;
+}
+
+export interface CementData {
+  n_structural_designs: number;
+  note: string;
+  scenarios: {
+    psc_premium_inr_per_kg: number | null;
+    psc_price_inr_per_kg: number;
+    front_size: number;
+    cost_span_pct: number;
+    carbon_span_pct: number;
+    cement_types_on_front: Record<string, number>;
+    front: { cost: number; carbon: number; cement: string }[];
+  }[];
 }
 
 export interface ProvenanceData {

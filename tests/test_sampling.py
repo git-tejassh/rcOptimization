@@ -27,7 +27,7 @@ def test_lhs_seed_reproducible_and_seed_sensitive():
 
 def _design(sp, **over):
     base = dict(B0_b=2, B0_D=4, B0_bd=1, B0_bn=3, B0_td=1, B0_tn=3, B1_b=2, B1_D=4, B1_bd=1, B1_bn=3, B1_td=1,
-                B1_tn=3, C0_b=5, C0_D=5, C0_dia=2, C0_n=3, C1_b=5, C1_D=5, C1_dia=2, C1_n=3, fck=2, fy=1)
+                B1_tn=3, C0_b=5, C0_D=5, C0_dia=2, C0_n=3, C1_b=5, C1_D=5, C1_dia=2, C1_n=3, fck=2, fy=1, cement=1)
     base.update(over)
     return sp.decode([base[n] for n in sp.gene_names], repair=False)
 

@@ -102,6 +102,7 @@ class ColumnSpace(_Strict):
 class GlobalSpace(_Strict):
     concrete_grade: list[str]
     steel_grade: list[str]
+    cement_type: list[str]
 
 
 class CoverCfg(_Strict):

@@ -26,8 +26,8 @@ def test_options_are_standard():
 
 def test_gene_layout():
     sp = default_space()
-    assert sp.n_genes == 6 * 2 + 4 * 2 + 2 == 22
-    assert sp.gene_names[0] == "B0_b" and sp.gene_names[-1] == "fy"
+    assert sp.n_genes == 6 * 2 + 4 * 2 + 3 == 23
+    assert sp.gene_names[0] == "B0_b" and sp.gene_names[-1] == "cement"
     assert sp.total_combinations() > 1e15
 
 
@@ -82,7 +82,7 @@ def test_size_key_ignores_reinforcement():
 def _design(sp, **over):
     base = dict(B0_b=2, B0_D=3, B0_bd=1, B0_bn=2, B0_td=1, B0_tn=2, B1_b=2, B1_D=3, B1_bd=1, B1_bn=2,
                 B1_td=1, B1_tn=2, C0_b=5, C0_D=5, C0_dia=2, C0_n=2, C1_b=5, C1_D=5, C1_dia=2, C1_n=2,
-                fck=2, fy=1)
+                fck=2, fy=1, cement=1)
     base.update(over)
     return sp.decode([base[n] for n in sp.gene_names], repair=False)
 

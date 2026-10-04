@@ -1,4 +1,4 @@
 status,reason,count
-OK,feasible (all IS 456 + deflection checks pass),3439
-OK,"infeasible (>= 1 check fails, valid data)",11561
+OK,feasible (all IS 456 + deflection checks pass),3424
+OK,"infeasible (>= 1 check fails, valid data)",11576
 FAILED_RUNS,none,0

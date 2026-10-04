@@ -9,26 +9,26 @@
  },
  "lhs_raw_geometry_infeasible_fraction": 0.9664444444444444,
  "lhs_raw_infeasible_reason_counts": {
-  "D_LT_B": 7994,
-  "B_GT_COLUMN_B": 6491,
-  "SPACING_MIN": 3402,
-  "SPACING_MAX": 3277,
-  "PT_GT_ABS_MAX": 1884,
-  "BOT_NOFIT": 635,
-  "TOP_NOFIT": 631
+  "D_LT_B": 8068,
+  "B_GT_COLUMN_B": 6520,
+  "SPACING_MIN": 3380,
+  "SPACING_MAX": 3242,
+  "PT_GT_ABS_MAX": 1757,
+  "BOT_NOFIT": 655,
+  "TOP_NOFIT": 617
  },
  "lhs_rows_changed_by_repair_fraction": 0.9664444444444444,
  "lhs_duplicates_after_repair_dropped": 0,
- "biased_candidates_drawn": 19380,
- "biased_acceptance": 0.30959752321981426,
+ "biased_candidates_drawn": 19105,
+ "biased_acceptance": 0.31405391258832765,
  "biased_rejection_counts": {
-  "COLUMN_PT_LIMITS": 8875,
-  "BEAM_STEEL_LIMITS": 2244,
-  "BEAM_FLEXURE_CRUDE": 1630,
-  "COLUMN_AXIAL_CRUDE": 631
+  "COLUMN_PT_LIMITS": 8632,
+  "BEAM_STEEL_LIMITS": 2214,
+  "BEAM_FLEXURE_CRUDE": 1618,
+  "COLUMN_AXIAL_CRUDE": 641
  },
  "seed": 42,
- "config_hash": "1acd38de93f352e9",
+ "config_hash": "b12016b4a5ba0be7",
  "physically_impossible_rows": 0,
  "impossible_reasons": {},
  "genes_in_range": true,
@@ -54,7 +54,8 @@
   "C1_dia": 5,
   "C1_n": 6,
   "fck": 4,
-  "fy": 2
+  "fy": 2,
+  "cement": 3
  },
  "cover_exposure": "moderate"
 }

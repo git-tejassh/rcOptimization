@@ -5,6 +5,7 @@ scope: A1-A4
 cement:
   default: PPC          # Portland Pozzolana Cement is the dominant cement in Indian RCC practice
   OPC: {value: 0.92, unit: kgCO2e/kg, source: "India OPC range 893-940 kg CO2/t cement, five zones (Indian OPC/blended-cement study, secondary source; mid-value)", confidence: medium, india_specific: true, status: secondary_source}
+  PSC: {value: 0.312, unit: kgCO2e/kg, source: "India PSC about 312 kg CO2/t cement (59 % below OPC; Indian OPC / blended-cement study via CEEW/GCCA India; secondary source)", confidence: medium, india_specific: true, status: secondary_source}
   PPC: {value: 0.507, unit: kgCO2e/kg, source: "India PPC about 507 kg CO2/t cement (31 % below OPC; same study via CEEW/GCCA India reporting; secondary source)", confidence: medium, india_specific: true, status: secondary_source}
 cement_content_kg_m3:       # typical mix designs (IS 10262 style); IS 456 Table 5 minimum 300-340 kg/m3
   M20: {value: 330, source: "typical mix; no source", status: provisional}

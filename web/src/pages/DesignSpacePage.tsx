@@ -140,5 +140,6 @@ function describe(name: string): string {
   };
   if (name === "fck") return "concrete grade (IS 456 Table 2)";
   if (name === "fy") return "reinforcement grade";
+  if (name === "cement") return "cement type (OPC IS 269, PPC IS 1489-1, PSC IS 455): cost and carbon only";
   return `${grp}: ${m[what] ?? what}`;
 }

@@ -76,6 +76,7 @@ class DesignModel(_Out):
     genome: list[int]
     concrete: str
     steel: str
+    cement: str
     pred_cost: float
     pred_carbon: float
     feasible_true: bool
@@ -174,7 +175,7 @@ def export_all() -> dict:
         for i, row in front.reset_index(drop=True).iterrows():
             g = np.array([int(row[f"g_{n}"]) for n in sp.gene_names])
             d = describe_genome(g, sp)
-            dd = {"id": int(i), "genome": [int(x) for x in g], "concrete": d["concrete"], "steel": d["steel"], "beams": d["beams"],
+            dd = {"id": int(i), "genome": [int(x) for x in g], "concrete": d["concrete"], "steel": d["steel"], "cement": d["cement"], "beams": d["beams"],
                   "columns": d["columns"], "pred_cost": float(row.pred_cost), "pred_carbon": float(row.pred_carbon),
                   "true_cost": float(row.true_cost) if row.true_status == "OK" else None,
                   "true_carbon": float(row.true_carbon) if row.true_status == "OK" else None,
@@ -219,11 +220,15 @@ def export_all() -> dict:
     if sens:
         _write("sensitivity.json", _clean(sens))
     _write("benchmark.json", _clean(bench))
+    if (RESULTS / "cement_tradeoff.json").exists():
+        _write("cement.json", _clean(_load("cement_tradeoff.json")))
 
     # ---------------- provenance
     cr, cf = config.load_dict("cost_rates"), config.load_dict("carbon_factors")
     cost_rows = [{"item": f"Concrete {g}", **{k: v[k] for k in ("value", "unit", "source", "status")}} for g, v in cr["concrete_per_m3"].items()]
     cost_rows += [{"item": f"Steel {g}", **{k: v[k] for k in ("value", "unit", "source", "status")}} for g, v in cr["steel_per_kg"].items()]
+    cost_rows += [{"item": f"Cement price {g}", **{k: v[k] for k, v in [(kk, cr["cement_price_per_kg"][g]) for kk in ("value", "unit", "source", "status")]}}
+                  for g in ("OPC", "PPC", "PSC")]
     cost_rows.append({"item": "Formwork", **{k: cr["formwork_per_m2"][k] for k in ("value", "unit", "source", "status")}})
     carb = [{"item": f"Cement {k}", **{x: v[x] for x in ("value", "unit", "source", "confidence", "india_specific", "status")}}
             for k, v in cf["cement"].items() if isinstance(v, dict)]

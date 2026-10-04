@@ -7,7 +7,7 @@ import { GravityCaveat } from "../components/Caveat";
 import { download, palette } from "../format";
 import type { ParetoDesign } from "../types";
 
-type ColorBy = "concrete" | "steel" | "beamD" | "colB" | "none";
+type ColorBy = "concrete" | "steel" | "cement" | "beamD" | "colB" | "none";
 const SYMBOLS: Record<string, string> = { A: "circle", A_margin: "diamond", B: "square", B_margin: "triangle-up", direct: "cross" };
 const GRADES = ["M20", "M25", "M30", "M35", "M40"];
 
@@ -15,6 +15,7 @@ function colorOf(d: ParetoDesign, by: ColorBy): number {
   switch (by) {
     case "concrete": return GRADES.indexOf(d.concrete);
     case "steel": return d.steel === "Fe415" ? 0 : 1;
+    case "cement": return ["OPC", "PPC", "PSC"].indexOf(d.cement);
     case "beamD": return d.beams[0].D_mm;
     case "colB": return d.columns[0].b_mm;
     default: return 0;
@@ -43,6 +44,7 @@ export default function ParetoPage() {
       });
     const cb = by === "none" ? {} : (() => {
       if (by === "concrete") return { colorscale: GRADES.map((g, i) => [i / 4, palette.grade[g]]), cmin: 0, cmax: 4, colorbar: { title: "concrete", tickvals: [0, 1, 2, 3, 4], ticktext: GRADES } };
+      if (by === "cement") return { colorscale: [[0, "#dc2626"], [0.5, "#0ea5e9"], [1, "#16a34a"]], cmin: 0, cmax: 2, colorbar: { title: "cement", tickvals: [0, 1, 2], ticktext: ["OPC", "PPC", "PSC"] } };
       if (by === "steel") return { colorscale: [[0, palette.steel.Fe415], [1, palette.steel.Fe500]], cmin: 0, cmax: 1, colorbar: { title: "steel", tickvals: [0, 1], ticktext: ["Fe415", "Fe500"] } };
       return { colorscale: "Viridis", colorbar: { title: by === "beamD" ? "beam D (mm), group 0" : "column b (mm), group 0" } };
     })();
@@ -52,7 +54,7 @@ export default function ParetoPage() {
         type: "scatter", mode: "markers", name: pareto.labels[v] ?? v,
         x: ds.map((d) => xy(d)[0]), y: ds.map((d) => xy(d)[1]),
         customdata: ds.map((d) => [v, d.id]),
-        text: ds.map((d) => `#${d.id} ${d.concrete}/${d.steel}<br>beam ${d.beams[0].b_mm}×${d.beams[0].D_mm}, col ${d.columns[0].b_mm}×${d.columns[0].D_mm}<br>${d.feasible_true ? "✓ feasible" : "✕ INFEASIBLE"}${d.verification.verified ? (d.verification.passed ? " · verified ✓" : " · verification ✕") : ""}`),
+        text: ds.map((d) => `#${d.id} ${d.concrete}/${d.steel}/${d.cement}<br>beam ${d.beams[0].b_mm}×${d.beams[0].D_mm}, col ${d.columns[0].b_mm}×${d.columns[0].D_mm}<br>${d.feasible_true ? "✓ feasible" : "✕ INFEASIBLE"}${d.verification.verified ? (d.verification.passed ? " · verified ✓" : " · verification ✕") : ""}`),
         hovertemplate: "%{text}<br>cost %{x:.2f} lakh · carbon %{y:.1f} t<extra></extra>",
         marker: {
           symbol: SYMBOLS[v] ?? "circle", size: 9, color: ds.map((d) => colorOf(d, by)), ...(by === "none" ? { color: palette.fronts[v] } : cb),
@@ -98,6 +100,7 @@ export default function ParetoPage() {
           <select className="btn" value={by} onChange={(e) => setBy(e.target.value as ColorBy)}>
             <option value="concrete">concrete grade</option>
             <option value="steel">steel grade</option>
+            <option value="cement">cement type</option>
             <option value="beamD">beam depth</option>
             <option value="colB">column size</option>
             <option value="none">front</option>

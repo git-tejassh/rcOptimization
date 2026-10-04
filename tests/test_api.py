@@ -19,7 +19,7 @@ def test_health():
 
 def test_validation_errors():
     assert client.post("/evaluate/fe", json={"genome": [0, 1]}).status_code == 422
-    assert client.post("/evaluate/fe", json={"genome": [999] * 22}).status_code == 422
+    assert client.post("/evaluate/fe", json={"genome": [999] * 23}).status_code == 422
     assert client.get("/pareto/nonsense").status_code == 404
 
 

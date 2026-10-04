@@ -155,13 +155,23 @@ def report() -> None:
     typer.echo("report: docs/REPORT_DRAFT.md, docs/VIVA_PREP.md written")
 
 
+@app.command()
+def cement() -> None:
+    """Cement-type trade-off scan (price premium of low-carbon cement) -> data/results/cement_tradeoff.json."""
+    from rcopt.cost_carbon.cement_tradeoff import run_cement_tradeoff
+
+    for s in run_cement_tradeoff()["scenarios"]:
+        typer.echo(f"PSC premium {s['psc_premium_inr_per_kg']}: front {s['front_size']} pts, cost span {s['cost_span_pct']:.1f} %, "
+                   f"carbon span {s['carbon_span_pct']:.1f} %, cements {s['cement_types_on_front']}")
+
+
 @app.command(name="all")
 def run_all_phases(force: bool = False) -> None:
     """Run phases 0 -> 5, the sensitivity study and the export (cached stages are skipped unless --force)."""
     import subprocess
     import sys
 
-    steps = ["phase0", "phase0b", "phase1", "phase2", "phase3", "phase4", "phase5", "sensitivity", "report", "export"]
+    steps = ["phase0", "phase0b", "phase1", "phase2", "phase3", "phase4", "phase5", "sensitivity", "cement", "report", "export"]
     for s in steps:
         cmd = [sys.executable, "-m", "rcopt.cli", s] + (["--force"] if force and s in ("phase2", "phase3", "phase4") else [])
         typer.echo(f">> {' '.join(cmd[2:])}")

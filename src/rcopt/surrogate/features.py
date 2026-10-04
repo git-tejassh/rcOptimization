@@ -23,6 +23,8 @@ class FeatureBuilder:
                 self._values.append(np.array([sp.fck_of[o] for o in opts], dtype=float))
             elif name == "fy":
                 self._values.append(np.array([sp.fy_of[o] for o in opts], dtype=float))
+            elif name == "cement":
+                self._values.append(np.arange(len(opts), dtype=float))      # categorical: option index
             else:
                 self._values.append(np.array(opts, dtype=float))
         self.cfg = config.design_space()
@@ -55,7 +57,7 @@ class FeatureBuilder:
     def features_a(self, G: np.ndarray) -> pd.DataFrame:
         """All genes (physical) + derived reinforcement / section quantities (Surrogate A inputs)."""
         P = self.physical(G)
-        out = P.copy()
+        out = P.drop(columns=["cement"])         # cement type changes cost / carbon only, never U or deflection
         fy, fck = P["fy"].to_numpy(), P["fck"].to_numpy()
         for g in range(self.n_bg):
             b, D = P[f"B{g}_b"].to_numpy(), P[f"B{g}_D"].to_numpy()

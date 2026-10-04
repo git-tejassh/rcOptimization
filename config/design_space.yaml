@@ -23,6 +23,7 @@ column:
 global:
   concrete_grade: [M20, M25, M30, M35, M40]
   steel_grade: [Fe415, Fe500]
+  cement_type: [OPC, PPC, PSC]   # IS 269 / IS 1489 (Part 1) / IS 455; affects cost and carbon only, not the structural response
 # IS 456 Table 5 (durability) and Table 16 (cover) by exposure: PROVISIONAL transcription, owner must verify.
 # The chosen exposure removes concrete grades below its minimum from the option list (a grade below the minimum is not allowed).
 exposure_requirements:

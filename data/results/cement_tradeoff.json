@@ -1,0 +1,325 @@
+{
+ "n_structural_designs": 3424,
+ "scenarios": [
+  {
+   "psc_premium_inr_per_kg": null,
+   "psc_price_inr_per_kg": 7.3,
+   "front_size": 4,
+   "cost_span_pct": 6.3960236967031125,
+   "carbon_span_pct": 5.660621682769529,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 0,
+    "PSC": 4
+   },
+   "cost_range": [
+    2662379.217443295,
+    2832665.6230870667
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    63980.65452013026
+   ],
+   "front": [
+    {
+     "cost": 2832665.6230870667,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2682107.354243175,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2662379.217443295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2794487.453480849,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 0.0,
+   "psc_price_inr_per_kg": 7.5,
+   "front_size": 4,
+   "cost_span_pct": 6.5119772158007905,
+   "carbon_span_pct": 5.660621682769529,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 0,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    2844336.677587067
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    63980.65452013026
+   ],
+   "front": [
+    {
+     "cost": 2844336.677587067,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2691500.0767431753,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2805296.349980849,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 0.25,
+   "psc_price_inr_per_kg": 7.75,
+   "front_size": 5,
+   "cost_span_pct": 7.0582852094992266,
+   "carbon_span_pct": 18.637102407767813,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 1,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    2858925.495712067
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    71838.30022513027
+   ],
+   "front": [
+    {
+     "cost": 2858925.495712067,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2703240.9798681755,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 71838.30022513027,
+     "cement": "PPC"
+    },
+    {
+     "cost": 2680512.245993295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2818807.470605849,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 0.5,
+   "psc_price_inr_per_kg": 8.0,
+   "front_size": 5,
+   "cost_span_pct": 7.604593203197663,
+   "carbon_span_pct": 18.637102407767813,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 1,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    2873514.3138370668
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    71838.30022513027
+   ],
+   "front": [
+    {
+     "cost": 2873514.3138370668,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2714981.882993175,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 71838.30022513027,
+     "cement": "PPC"
+    },
+    {
+     "cost": 2690586.150743295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2832318.591230849,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 1.0,
+   "psc_price_inr_per_kg": 8.5,
+   "front_size": 5,
+   "cost_span_pct": 8.697209190594513,
+   "carbon_span_pct": 18.637102407767813,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 1,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    2902691.9500870667
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    71838.30022513027
+   ],
+   "front": [
+    {
+     "cost": 2902691.9500870667,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2738463.689243175,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 71838.30022513027,
+     "cement": "PPC"
+    },
+    {
+     "cost": 2710733.960243295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2859340.8324808488,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 2.0,
+   "psc_price_inr_per_kg": 9.5,
+   "front_size": 5,
+   "cost_span_pct": 10.882441165388258,
+   "carbon_span_pct": 18.637102407767813,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 1,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    2961047.2225870667
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    71838.30022513027
+   ],
+   "front": [
+    {
+     "cost": 2961047.2225870667,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2785427.3017431754,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 71838.30022513027,
+     "cement": "PPC"
+    },
+    {
+     "cost": 2751029.579243295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2913385.3149808487,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  },
+  {
+   "psc_premium_inr_per_kg": 4.0,
+   "psc_price_inr_per_kg": 11.5,
+   "front_size": 5,
+   "cost_span_pct": 15.252905114975723,
+   "carbon_span_pct": 18.637102407767813,
+   "cement_types_on_front": {
+    "OPC": 0,
+    "PPC": 1,
+    "PSC": 4
+   },
+   "cost_range": [
+    2670438.341243295,
+    3077757.7675870666
+   ],
+   "carbon_range": [
+    60552.97943658023,
+    71838.30022513027
+   ],
+   "front": [
+    {
+     "cost": 3077757.7675870666,
+     "carbon": 60552.97943658023,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2879354.5267431755,
+     "carbon": 63330.8954198759,
+     "cement": "PSC"
+    },
+    {
+     "cost": 2670438.341243295,
+     "carbon": 71838.30022513027,
+     "cement": "PPC"
+    },
+    {
+     "cost": 2831620.817243295,
+     "carbon": 63980.65452013026,
+     "cement": "PSC"
+    },
+    {
+     "cost": 3021474.279980849,
+     "carbon": 62985.05823130098,
+     "cement": "PSC"
+    }
+   ]
+  }
+ ],
+ "note": "PSC price premium over PPC in INR per kg of cement; None = config market prices (all provisional)"
+}

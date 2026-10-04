@@ -237,7 +237,6 @@
   {
    "name": "fck",
    "options": [
-    "M20",
     "M25",
     "M30",
     "M35",
@@ -250,10 +249,18 @@
     "Fe415",
     "Fe500"
    ]
+  },
+  {
+   "name": "cement",
+   "options": [
+    "OPC",
+    "PPC",
+    "PSC"
+   ]
   }
  ],
- "n_genes": 22,
- "total_combinations": 130661359718400000,
+ "n_genes": 23,
+ "total_combinations": 313587263324160000,
  "beam_groups": [
   [
    0,
@@ -280,7 +287,7 @@
   "beam": 30.0,
   "column": 40.0
  },
- "config_hash": "67e1326c5bae49c9",
+ "config_hash": "504ed34b0e44831a",
  "provisional_items": [
   "cost_rates.concrete_per_m3.M20",
   "cost_rates.concrete_per_m3.M25",
@@ -290,16 +297,15 @@
   "cost_rates.steel_per_kg.Fe500",
   "cost_rates.steel_per_kg.Fe415",
   "cost_rates.formwork_per_m2",
-  "carbon_factors.cement.OPC",
-  "carbon_factors.cement.PPC",
+  "cost_rates.cement_price_per_kg.OPC",
+  "cost_rates.cement_price_per_kg.PPC",
+  "cost_rates.cement_price_per_kg.PSC",
   "carbon_factors.cement_content_kg_m3.M20",
   "carbon_factors.cement_content_kg_m3.M25",
   "carbon_factors.cement_content_kg_m3.M30",
   "carbon_factors.cement_content_kg_m3.M35",
   "carbon_factors.cement_content_kg_m3.M40",
   "carbon_factors.concrete_other_kgCO2e_m3",
-  "carbon_factors.steel.Fe500",
-  "carbon_factors.steel.Fe415",
   "carbon_factors.transport_A4.concrete",
   "carbon_factors.transport_A4.steel",
   "is456_tables"
