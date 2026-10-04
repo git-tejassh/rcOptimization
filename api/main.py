@@ -12,18 +12,20 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from api.schemas import CostCarbonResponse, GenomeIn, SurrogateOut, SurrogateResponse
+from api.schemas import CostCarbonResponse, GenomeIn, ReviewIn, SurrogateOut, SurrogateResponse
 from rcopt import config
 from rcopt.config import ROOT
 from rcopt.design.describe import describe_genome
 from rcopt.design.variables import default_space
+from rcopt.review.frame_review import ReviewError, review_staad
 
 RESULTS = ROOT / "data" / "results"
 app = FastAPI(title="RC frame optimisation API", version="0.1.0",
               description="Gravity-only IS 456 evaluation of discrete RC frame designs. Cost / carbon rates are provisional.")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173"],
-                   allow_methods=["*"], allow_headers=["*"])
+# local tool without credentials: any origin may call it (needed when the dashboard is opened from a file or another port)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 VARIANTS = {"A": "pareto_surrogate_A", "A_margin": "pareto_surrogate_A_margin", "B": "pareto_surrogate_B",
             "B_margin": "pareto_surrogate_B_margin", "direct": "pareto_direct"}
 
@@ -48,8 +50,10 @@ def _genome(body: GenomeIn) -> np.ndarray:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "surrogates": {n: (ROOT / "models" / f"surrogate_{n}.joblib").exists() for n in ("A", "B")},
-            "provisional_data": bool(config.provisional_items())}
+    models = {n: (ROOT / "models" / f"surrogate_{n}.joblib").exists() for n in ("A", "B")}
+    return {"status": "ok", "service": "rcopt", "surrogates": models, "strength_review": True,
+            "results_present": (RESULTS / "verification.json").exists(), "dashboard_built": (ROOT / "web" / "dist" / "index.html").exists(),
+            "live_evaluator_ready": all(models.values()), "provisional_data": bool(config.provisional_items())}
 
 
 @app.get("/design-space")
@@ -109,3 +113,20 @@ def evaluate_cost_carbon(body: GenomeIn) -> CostCarbonResponse:
     return CostCarbonResponse(repaired_genome=[int(x) for x in g], status=d["status"], quantities=d.get("quantities"),
                               cost_inr=d.get("cost_inr"), carbon_kgco2e=d.get("carbon_kgco2e"),
                               provisional=bool(config.provisional_items()))
+
+
+@app.post("/review/staad")
+def review_staad_endpoint(body: ReviewIn) -> dict:
+    """Strength review + reinforcement design of a regular RC frame given as STAAD input text (about 0.5 s)."""
+    if body.concrete not in config.load_dict("is456_tables")["concrete"]["fck_MPa"] or body.steel not in config.load_dict("is456_tables")["steel"]["fy_MPa"]:
+        raise HTTPException(422, "unknown concrete or steel grade")
+    try:
+        return review_staad(body.text, body.concrete, body.steel, body.cement)
+    except ReviewError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+# the built dashboard is served from the same origin, so `rcopt serve` is a complete local deployment
+_DIST = ROOT / "web" / "dist"
+if (_DIST / "index.html").exists():
+    app.mount("/", StaticFiles(directory=str(_DIST), html=True), name="dashboard")

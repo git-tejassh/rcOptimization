@@ -1,0 +1,11 @@
+# Render blueprint: a single web service running the Docker image (dashboard + API).
+# Set MODELS_URL (build arg / env) to the direct link of models.zip, see docs/DEPLOY.md.
+services:
+  - type: web
+    name: rc-frame-optimiser
+    runtime: docker
+    plan: starter          # the free plan (512 MB) is too small for OpenSees + two XGBoost ensembles
+    healthCheckPath: /health
+    envVars:
+      - key: MODELS_URL
+        sync: false

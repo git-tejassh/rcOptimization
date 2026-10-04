@@ -165,6 +165,15 @@ def cement() -> None:
                    f"carbon span {s['carbon_span_pct']:.1f} %, cements {s['cement_types_on_front']}")
 
 
+@app.command()
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Serve the built dashboard AND the API on one address (live evaluator + strength review). Use --host 0.0.0.0 to share on the LAN."""
+    import uvicorn
+
+    typer.echo(f"dashboard + API on http://{'localhost' if host in ('127.0.0.1', '0.0.0.0') else host}:{port}  (Ctrl+C to stop)")
+    uvicorn.run("api.main:app", host=host, port=port)
+
+
 @app.command(name="all")
 def run_all_phases(force: bool = False) -> None:
     """Run phases 0 -> 5, the sensitivity study and the export (cached stages are skipped unless --force)."""

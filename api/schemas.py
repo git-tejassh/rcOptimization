@@ -35,3 +35,12 @@ class CostCarbonResponse(BaseModel):
     cost_inr: dict | None = None
     carbon_kgco2e: dict | None = None
     provisional: bool = True
+
+
+class ReviewIn(BaseModel):
+    """STAAD input text plus the materials to design with."""
+
+    text: str = Field(..., description="contents of the STAAD .std input file")
+    concrete: str = "M30"
+    steel: str = "Fe500"
+    cement: str = "PPC"

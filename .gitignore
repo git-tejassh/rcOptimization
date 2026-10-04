@@ -43,3 +43,4 @@ data/processed/*.parquet
 models/*.joblib
 models/xgb_*.json
 data/processed/opt/
+models.zip

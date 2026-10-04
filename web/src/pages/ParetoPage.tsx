@@ -3,6 +3,7 @@ import { useData } from "../data";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
 import DesignDetails from "../components/DesignDetails";
+import FrontTable from "../components/FrontTable";
 import PageHeader, { Section } from "../components/PageHeader";
 import { GravityCaveat } from "../components/Caveat";
 import { download, lakh, palette, tonnes } from "../format";
@@ -268,6 +269,10 @@ export default function ParetoPage() {
           ))}
           {!featured.length && <p className="text-sm muted">Switch on at least one front above.</p>}
         </div>
+      </Section>
+
+      <Section eyebrow="All points" title="Feature values of every design on the fronts shown" hint="The full data behind the chart: each row is one point with its materials, member sizes, reinforcement, quantities, cost, carbon and code checks. Click a row to pin its property sheet at the top of the page.">
+        <FrontTable rows={shownDesigns} labels={pareto.labels} onPick={(r) => { setSel({ v: r.v, i: r.d.id }); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
       </Section>
 
       <div className="flex flex-wrap gap-2">

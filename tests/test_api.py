@@ -47,3 +47,21 @@ def test_evaluate_surrogate_close_to_ground_truth_cost():
 def test_results_endpoints():
     assert client.get("/verification").status_code == 200
     assert client.get("/design-space").status_code == 200
+
+
+def test_review_staad_sample():
+    text = (ROOT / "legacy" / "staad_model" / "G+3 RCC FINAL.STD").read_text(encoding="latin-1")
+    r = client.post("/review/staad", json={"text": text, "concrete": "M30", "steel": "Fe500", "cement": "PPC"})
+    assert r.status_code == 200
+    j = r.json()
+    assert j["verdict"] == "PASS" and j["frame"]["n_members"] == 255
+    assert j["quantities"]["concrete_m3"] == pytest.approx(147.86, rel=1e-3)
+    assert all(b["pass"] for b in j["beams"]) and all(c["pass"] for c in j["columns"])
+
+
+def test_review_rejects_bad_input_and_flags_undersized():
+    assert client.post("/review/staad", json={"text": "hello"}).status_code == 422
+    text = (ROOT / "legacy" / "staad_model" / "G+3 RCC FINAL.STD").read_text(encoding="latin-1")
+    small = text.replace("PRIS YD 0.45 ZD 0.45", "PRIS YD 0.23 ZD 0.23")
+    r = client.post("/review/staad", json={"text": small})
+    assert r.status_code == 200 and r.json()["verdict"] == "FAIL" and r.json()["failures"]

@@ -10,6 +10,9 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+LENGTH_UNITS = {"METER": 1.0, "METRE": 1.0, "MET": 1.0, "MTR": 1.0, "CM": 0.01, "MMS": 0.001, "MM": 0.001, "INCH": 0.0254,
+                "INCHES": 0.0254, "IN": 0.0254, "FEET": 0.3048, "FT": 0.3048}
+
 
 @dataclass
 class StaadModel:
@@ -61,8 +64,15 @@ def parse_staad(path: str | Path) -> StaadModel:
     block = ""
     case = 0
     sub = ""
+    unit_m = 1.0                       # length unit of the file in metres (UNIT statements are tracked in order)
     for line in _logical_lines(text):
         up = line.upper()
+        mu = re.match(r"UNIT\s+(.*)", up)
+        if mu:
+            for tok in mu.group(1).split():
+                if tok in LENGTH_UNITS:
+                    unit_m = LENGTH_UNITS[tok]
+            continue
         if up.startswith("JOINT COORDINATES"):
             block = "joints"
             continue
@@ -97,7 +107,7 @@ def parse_staad(path: str | Path) -> StaadModel:
         if block == "joints":
             for stmt in filter(None, (s.strip() for s in line.split(";"))):
                 t = stmt.split()
-                m.joints[int(t[0])] = (float(t[1]), float(t[2]), float(t[3]))
+                m.joints[int(t[0])] = (float(t[1]) * unit_m, float(t[2]) * unit_m, float(t[3]) * unit_m)
         elif block == "incid":
             for stmt in filter(None, (s.strip() for s in line.split(";"))):
                 t = stmt.split()
@@ -106,14 +116,14 @@ def parse_staad(path: str | Path) -> StaadModel:
             mp = re.match(r"(.*?)PRIS\s+YD\s+([\d.]+)\s+ZD\s+([\d.]+)", line, re.I)
             if mp:
                 for mid in _ids(mp.group(1).split()):
-                    m.section_m[mid] = (float(mp.group(2)), float(mp.group(3)))
+                    m.section_m[mid] = (float(mp.group(2)) * unit_m, float(mp.group(3)) * unit_m)
         elif block == "material":
             t = line.split()
             if t[0].upper() in ("E", "POISSON", "DENSITY", "G"):
                 m.material[t[0].upper()] = float(t[1])
         elif block == "supports":
             t = line.split()
-            if t[-1].upper() == "FIXED":
+            if t[-1].upper() in ("FIXED", "PINNED"):
                 m.supports.extend(_ids(t[:-1]))
         elif block == "combo":
             t = line.split()

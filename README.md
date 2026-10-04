@@ -19,6 +19,9 @@ Tests: `.venv\Scripts\python.exe -m pytest` (`-m "not slow"` for the fast set).
 ## Dashboard tabs
 Layout: one hero (the page's single title) per tab, header menus Overview / Designs / Method / Data / Live evaluator plus a green "My design estimate" button. Overview · Design space · Pareto explorer (bad/good/best zones, full property sheet, best-case cards) · Surrogate performance · Verification · Compute comparison · Sensitivity (incl. cement type) · Data & assumptions · Live evaluator (needs `make api`) · About · **My design estimate** (upload a STAAD `.std`, or start from an optimised design, edit every price / carbon factor, get quantities, cost, carbon and a comparison with the optimiser; browser-only, no strength check).
 
+## Run everything on one address
+`python -m rcopt.cli serve` serves the dashboard and the API together at http://localhost:8000 (live evaluator and the IS 456 strength review of an uploaded STAAD file switch on). Sharing and online deployment: `docs/DEPLOY.md`.
+
 ## Where things are
 | Path | What |
 |---|---|

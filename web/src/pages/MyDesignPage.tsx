@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useData } from "../data";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
-import PageHeader from "../components/PageHeader";
+import PageHeader, { Section } from "../components/PageHeader";
+import FrontTable from "../components/FrontTable";
+import DesignDetails from "../components/DesignDetails";
+import StrengthReview from "../components/StrengthReview";
+import Suggestions, { pickSuggestions } from "../components/Suggestions";
+import { reportHtml } from "../lib/report";
+import type { ReviewReport } from "../lib/api";
 import { Finding, Stat } from "../components/Caveat";
 import { download, lakh, num, pct, tonnes } from "../format";
 import { cloneRates, estimate, quantitiesFromGroups, type Group, type Quantities, type Rates } from "../lib/estimate";
@@ -66,6 +72,11 @@ export default function MyDesignPage() {
 
   const [mode, setMode] = useState<Mode>("staad");
   const [model, setModel] = useState<StaadModel | null>(null);
+  const [staadText, setStaadText] = useState<string | null>(null);
+  const [review, setReview] = useState<ReviewReport | null>(null);
+  const [reviewKey, setReviewKey] = useState("");
+  const [picked, setPicked] = useState<{ v: string; d: ParetoDesign } | null>(null);
+  const [tableFronts, setTableFronts] = useState<string[]>(["B_margin", "direct"]);
   const [fileName, setFileName] = useState("");
   const [manual, setManual] = useState<Group[]>([
     { kind: "beam", b_mm: 300, D_mm: 450, count: 155, total_length_m: 775 },
@@ -84,6 +95,8 @@ export default function MyDesignPage() {
   const [deduct, setDeduct] = useState(true);
 
   const loadText = (text: string, name: string) => {
+    setStaadText(text);
+    setReview(null);
     setModel(parseStaad(text));
     setFileName(name);
     setMode("staad");
@@ -95,15 +108,19 @@ export default function MyDesignPage() {
     if (d) { setGrade(d.concrete); setSteel(d.steel); setCement(d.cement); }
   };
 
+  const currentKey = `${grade}|${steel}|${cement}`;
+  const reviewStale = !!review && reviewKey !== currentKey;
   const q: Quantities | null = useMemo(() => {
     if (mode === "design") {
       const x = chosen?.quantities;
       return x ? { concrete_m3: x.concrete_m3, beam_concrete_m3: x.beam_concrete_m3, column_concrete_m3: x.column_concrete_m3, steel_kg: x.steel_kg, beam_steel_kg: x.beam_steel_kg, column_steel_kg: x.column_steel_kg, formwork_m2: x.formwork_m2 } : null;
     }
+    if (mode === "staad" && review && !reviewStale) return review.quantities as unknown as Quantities;   // designed bars replace the assumed steel
+    if (mode === "staad" && review && !reviewStale) return review.quantities as unknown as Quantities;   // designed bars replace the assumed steel
     const groups: Group[] = mode === "staad" ? (model?.groups ?? []) : manual;
     if (!groups.length) return null;
     return quantitiesFromGroups(groups, { beamSteelKgM3: beamSteel, columnSteelKgM3: colSteel, slabThicknessMm: slabT, deductColumnFromBeams: deduct, netSideFormwork: factors.defaults.beam_side_formwork_net_of_slab });
-  }, [mode, chosen, model, manual, beamSteel, colSteel, slabT, deduct, factors]);
+  }, [mode, chosen, model, manual, beamSteel, colSteel, slabT, deduct, factors, review, reviewStale]);
 
   const est = useMemo(() => (q ? estimate(q, grade, steel, cement, rates) : null), [q, grade, steel, cement, rates]);
 
@@ -149,6 +166,24 @@ export default function MyDesignPage() {
     };
   }, [ideal, me]);
 
+  const suggestions = useMemo(() => {
+    const rows = [
+      ...pareto.variants.B_margin.map((d) => ({ v: "B_margin", d })),
+      ...pareto.variants.direct.map((d) => ({ v: "direct", d })),
+      ...pareto.variants.B.map((d) => ({ v: "B", d })),
+    ];
+    return pickSuggestions(rows, ideal, 8);
+  }, [pareto, ideal]);
+  const html = () => reportHtml({
+    source: mode === "staad" ? fileName || "STAAD file" : mode === "design" ? `optimiser design #${chosen?.id}` : "manual member totals",
+    grade, steel, cement, q: q!, est: est!,
+    steelBasis: mode === "design" ? "from the optimiser (designed bars)" : review && !reviewStale ? "designed by the strength review (IS 456)" : `ASSUMED ${num(beamSteel, 0)} kg/m3 (beams), ${num(colSteel, 0)} kg/m3 (columns)`,
+    review: review && !reviewStale ? review : null, zone: zone ? ZONE_COLORS[zone].label : null, reference: ref ? { cost: ref.cost, carbon: ref.carbon } : null,
+    suggestions: suggestions.map((s) => ({ tag: s.tag, front: pareto.labels[s.v] ?? s.v, cost: s.d.true_cost!, carbon: s.d.true_carbon!, materials: `${s.d.concrete}/${s.d.steel}/${s.d.cement}`,
+      beams: s.d.beams.map((b) => `${b.b_mm}x${b.D_mm} (${b.bottom} / ${b.top})`).join("; "), columns: s.d.columns.map((c) => `${c.b_mm}x${c.D_mm} (${c.bars})`).join("; ") })),
+    changedRates: nChanged ? ["see the green price and factor fields in the app"] : [],
+    provisionalNote: "Prices, cement content, transport and several carbon inputs are provisional placeholders; absolute INR and kgCO2e are indicative. Gravity loads only.",
+  });
   const groupsShown: Group[] = mode === "staad" ? (model?.groups ?? []) : mode === "manual" ? manual : [];
   const needsAssumptions = mode !== "design";
 
@@ -161,7 +196,8 @@ export default function MyDesignPage() {
         howTo={[
           "Step 1: choose where your design comes from: upload a STAAD input file (.std), try the sample file, start from one of the optimised designs, or type member totals by hand.",
           "Step 2: confirm the materials (concrete grade, steel grade, cement type) and the reinforcement assumption. A STAAD file contains member sizes but no reinforcement, so a steel quantity per m³ of concrete is assumed; the default is the median of the optimised designs.",
-          "Step 3: change any price or carbon factor (green fields differ from the project values; ↺ resets one, “Reset all” resets everything). Your changes are remembered in this browser only.",
+          "Step 3: for a STAAD file, run the strength review (it needs the local server, see the panel): it checks your member sizes against IS 456, designs the reinforcement and says so if the sizes are inadequate.",
+          "Step 4: change any price or carbon factor (green fields differ from the project values; ↺ resets one, “Reset all” resets everything). Your changes are remembered in this browser only.",
           "The results panel on the right is live. It shows quantities, cost, carbon, how you compare with the best optimised design, and where you sit on the bad / good / best map.",
           "Important: this is a quantity, cost and carbon estimate. It does NOT check strength; the optimised designs are the ones that were checked against IS 456 (gravity loads only).",
         ]}
@@ -266,7 +302,9 @@ export default function MyDesignPage() {
                 <select className="input" value={cement} onChange={(e) => setCement(e.target.value)}>{factors.cements.map((g) => <option key={g}>{g}</option>)}</select>
               </Field>
             </div>
-            {needsAssumptions ? (
+            {needsAssumptions && review && !reviewStale ? (
+              <p className="mt-3 text-sm muted">Reinforcement comes from the strength review (designed bars), so the steel-per-m³ assumption is not used.</p>
+            ) : needsAssumptions ? (
               <div className="mt-4 grid gap-4 md:grid-cols-4">
                 <Field label="Beam steel (kg per m³ of beam concrete)" hint={`Default ${num(factors.defaults.beam_steel_kg_per_m3, 0)}: median of the optimised designs.`}>
                   <input className="input" type="number" min={0} value={beamSteel} onChange={(e) => setBeamSteel(parseFloat(e.target.value) || 0)} />
@@ -286,10 +324,21 @@ export default function MyDesignPage() {
             )}
           </section>
 
+          {mode === "staad" ? (
+            <StrengthReview staadText={staadText} grade={grade} steel={steel} cement={cement} report={review} stale={reviewStale}
+              onReport={(r) => { setReview(r); setReviewKey(currentKey); }} />
+          ) : (
+            <section className="card">
+              <div className="eyebrow">Step 3</div>
+              <h2 className="h2">Strength review</h2>
+              <p className="mt-1 text-sm muted">{mode === "design" ? "Optimised designs were already checked against IS 456 with the finite-element model (see the Pareto explorer), so no further review is needed." : "The strength review runs on a STAAD input of a regular frame: choose “Upload a STAAD file” in Step 1."}</p>
+            </section>
+          )}
+
           <section className="card">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <div className="eyebrow">Step 3</div>
+                <div className="eyebrow">Step 4</div>
                 <h2 className="h2">Prices and carbon factors (editable)</h2>
                 <p className="mt-0.5 text-sm muted">Green fields differ from the project values. Prices are provisional placeholders, so replace them with your own quotes.</p>
               </div>
@@ -405,6 +454,42 @@ export default function MyDesignPage() {
           </div>
         </div>
       </div>
+
+      <Section eyebrow="Suggestions" title="Optimised designs you could use instead" hint="Several designs that pass every IS 456 check: the cheapest, the lowest-carbon, the best compromise, an FE-verified one, and designs spread along the front. Click a row for its full specification.">
+        <Suggestions items={suggestions} mine={me ? { cost: me.x * 1e5, carbon: me.y * 1000 } : null} labels={pareto.labels}
+          onUse={(d) => { setMode("design"); const i = optimal.findIndex((o) => o.id === d.id && o.true_cost === d.true_cost); pickDesign(i >= 0 ? i : 0); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
+      </Section>
+
+      <Section eyebrow="Reference data" title="Every design on the Pareto front and its feature values" hint="All points of the fronts you select, with every feature the optimiser chose or computed: materials, member sizes, reinforcement, stirrups, quantities, cost, carbon and the four code checks.">
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {Object.keys(pareto.variants).map((n) => (
+            <button key={n} className={`btn ${tableFronts.includes(n) ? "btn-on" : ""}`} onClick={() => setTableFronts(tableFronts.includes(n) ? tableFronts.filter((x) => x !== n) : [...tableFronts, n])}>{pareto.labels[n] ?? n} ({pareto.variants[n].length})</button>
+          ))}
+        </div>
+        <FrontTable rows={tableFronts.flatMap((v) => pareto.variants[v].map((d) => ({ v, d })))} labels={pareto.labels} onPick={(r) => setPicked(r)} />
+        {picked && (
+          <div className="card-soft mt-4">
+            <div className="mb-2 flex items-center justify-between"><span className="eyebrow">Selected row</span><button className="btn" onClick={() => setPicked(null)}>Close</button></div>
+            <DesignDetails d={picked.d} label={pareto.labels[picked.v]} />
+          </div>
+        )}
+      </Section>
+
+      {q && est && (
+        <Section eyebrow="Final report" title="Design review report" hint="Everything above in one document: strength review, quantities, cost and carbon, suggested designs and the assumptions. Download it as an HTML file or print it (choose Save as PDF in the print dialog).">
+          <div className="grid gap-3 md:grid-cols-4">
+            <Stat label="Strength" value={review && !reviewStale ? review.verdict : mode === "design" ? "PASS" : "not run"} tone={review && !reviewStale ? (review.verdict === "PASS" ? "good" : "bad") : mode === "design" ? "good" : "warn"}
+              sub={mode === "design" ? "optimised designs pass all IS 456 checks" : review && !reviewStale ? "IS 456, gravity loads, designed bars" : "needs a STAAD file and the local server"} />
+            <Stat label="Cost" value={lakh(est.cost.total)} sub={`${num(q.concrete_m3, 1)} m³ concrete · ${tonnes(q.steel_kg)} steel`} />
+            <Stat label="Carbon" value={`${tonnes(est.carbon.total)} CO₂e`} sub={zone ? `${ZONE_COLORS[zone].label} zone vs the optimiser` : "zone n/a"} />
+            <Stat label="Suggestions" value={`${suggestions.length}`} sub="optimised designs listed above" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button className="btn-primary" onClick={() => download("design_review_report.html", html(), "text/html")}>Download the report (HTML)</button>
+            <button className="btn" onClick={() => { const w = window.open("", "_blank"); if (w) { w.document.write(html()); w.document.close(); w.focus(); w.print(); } }}>Print / save as PDF</button>
+          </div>
+        </Section>
+      )}
     </div>
   );
 }
