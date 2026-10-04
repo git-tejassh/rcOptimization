@@ -1,11 +1,20 @@
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { GravityCaveat } from "../components/Caveat";
 
 export default function AboutPage() {
   const { meta } = useData();
   return (
     <div className="space-y-5">
-      <h1 className="h1">About, limits and deviations from the brief</h1>
+      <PageHeader
+        eyebrow="About"
+        title={"About, limits and deviations from the brief"}
+        lead="What the project is, what it deliberately does not do, and how it differs from the original brief."
+        howTo={[
+          "Read the out-of-scope list before quoting any number.",
+          "The deviations table records every place where the work departs from the brief, with the reason.",
+        ]}
+      />
       <GravityCaveat />
       <section className="card">
         <h2 className="h2">Honest novelty</h2>

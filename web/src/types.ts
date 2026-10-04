@@ -227,3 +227,8 @@ export interface ProvenanceData {
   benchmark_markdown: string;
   carbon_audit_markdown: string;
 }
+
+export interface SampleData {
+  name: string;
+  text: string;
+}

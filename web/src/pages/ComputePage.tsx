@@ -1,4 +1,5 @@
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
 import { Finding } from "../components/Caveat";
@@ -11,7 +12,16 @@ export default function ComputePage() {
   const cmp = c.compute;
   return (
     <div className="space-y-5">
-      <h1 className="h1">Compute comparison: surrogate vs direct FE</h1>
+      <PageHeader
+        eyebrow="Was the shortcut worth it?"
+        title={"Compute comparison: surrogate vs direct FE"}
+        lead="Time and quality of the surrogate-driven optimisation compared with optimising directly on the finite-element model."
+        howTo={[
+          "The curves show solution quality (hypervolume, higher is better) against the number of designs evaluated.",
+          "The table charges the surrogate for its one-off data generation and training, so the speed-up is not flattered.",
+          "A speed-up below 1 means the shortcut did not pay off for this small frame.",
+        ]}
+      />
       <Finding level={cmp.configs.A.speedup_vs_direct_incl_datagen_and_training > 1 ? "info" : "warn"} text={c.verdict} />
       <section className="card">
         <h2 className="h2 mb-2">Hypervolume vs evaluations (mean ± std over seeds)</h2>

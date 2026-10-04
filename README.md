@@ -16,6 +16,9 @@ cd web; npm run build     # then open web/dist/index.html (single file, works by
 Per-phase commands: `.venv\Scripts\python.exe -m rcopt.cli phase0 | phase0b | phase1 | ... | phase5 | sensitivity | report | export`.
 Tests: `.venv\Scripts\python.exe -m pytest` (`-m "not slow"` for the fast set).
 
+## Dashboard tabs
+Overview · Design space · Pareto explorer (bad/good/best zones, full property sheet, best-case cards) · Surrogate performance · Verification · Compute comparison · Sensitivity (incl. cement type) · Data & assumptions · Live evaluator (needs `make api`) · About · **My design estimate** (upload a STAAD `.std`, or start from an optimised design, edit every price / carbon factor, get quantities, cost, carbon and a comparison with the optimiser; browser-only, no strength check).
+
 ## Where things are
 | Path | What |
 |---|---|

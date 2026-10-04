@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { marked } from "marked";
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { download } from "../format";
 
 function Md({ text }: { text: string }) {
@@ -18,7 +19,15 @@ export default function ProvenancePage() {
   const last = benchmark[Object.keys(benchmark).slice(-1)[0]];
   return (
     <div className="space-y-5">
-      <h1 className="h1">Data provenance and assumptions</h1>
+      <PageHeader
+        eyebrow="Where every number comes from"
+        title={"Data provenance and assumptions"}
+        lead="Every price, carbon factor and modelling assumption, with its source and how much to trust it."
+        howTo={[
+          "Amber tags are provisional placeholders; grey tags come from published secondary sources; neither is a verified quote or EPD.",
+          "The tabs below hold the assumptions list, the decision log, the STAAD benchmark and the carbon-data audit.",
+        ]}
+      />
       <div className="rounded-md border border-amber-500 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950/40 dark:text-amber-100">
         Every value below marked ⚠ is a <strong>provisional placeholder</strong>. IS 456 tables: {p.is456_tables_status} (transcribed from memory; the owner must check them against the printed code). Replace the rates / factors in <code>config/*.yaml</code> and re-run to update everything.
       </div>

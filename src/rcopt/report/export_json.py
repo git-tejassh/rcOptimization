@@ -223,6 +223,56 @@ def export_all() -> dict:
     if (RESULTS / "cement_tradeoff.json").exists():
         _write("cement.json", _clean(_load("cement_tradeoff.json")))
 
+
+    # ---------------- factors for the in-browser estimator ("My design" tab)
+    crr, cff, qq = config.load_dict("cost_rates"), config.load_dict("carbon_factors"), config.load_dict("quantities")
+    bi, ci = [], []
+    for v in ("B_margin", "direct", "B"):
+        for d in variants[v]:
+            q = d.get("quantities")
+            if q and d["feasible_true"]:
+                bi.append(q["beam_steel_kg"] / q["beam_concrete_m3"])
+                ci.append(q["column_steel_kg"] / q["column_concrete_m3"])
+    sp_grades = list(sp.options[sp.gene_index("fck")])
+    factors = {
+        "grades": sp_grades, "steels": list(sp.options[sp.gene_index("fy")]), "cements": list(sp.options[sp.gene_index("cement")]),
+        "cost": {
+            "concrete_per_m3": {g: crr["concrete_per_m3"][g]["value"] for g in sp_grades},
+            "steel_per_kg": {g: v["value"] for g, v in crr["steel_per_kg"].items()},
+            "formwork_per_m2": crr["formwork_per_m2"]["value"],
+            "cement_price_per_kg": {k: v["value"] for k, v in crr["cement_price_per_kg"].items() if isinstance(v, dict)},
+            "cement_baseline": crr["cement_price_per_kg"]["baseline"],
+            "status": {"concrete": "provisional", "steel": "provisional", "formwork": "provisional", "cement": "provisional"},
+        },
+        "carbon": {
+            "cement_per_kg": {k: v["value"] for k, v in cff["cement"].items() if isinstance(v, dict)},
+            "cement_content_kg_m3": {g: cff["cement_content_kg_m3"][g]["value"] for g in sp_grades},
+            "concrete_other_per_m3": cff["concrete_other_kgCO2e_m3"]["value"],
+            "steel_per_kg": {g: v["value"] for g, v in cff["steel"].items()},
+            "transport": {k: {"distance_km": v["distance_km"], "factor": v["factor_kgCO2e_per_t_km"]} for k, v in cff["transport_A4"].items()},
+            "concrete_density": cff["concrete_density_kg_m3"],
+            "status": {"cement": "secondary_source", "steel": "secondary_source", "cement_content": "provisional",
+                       "other": "provisional", "transport": "provisional"},
+        },
+        "defaults": {
+            "beam_steel_kg_per_m3": float(np.median(bi)) if bi else 130.0, "column_steel_kg_per_m3": float(np.median(ci)) if ci else 150.0,
+            "slab_thickness_mm": qq["slab_thickness_for_formwork_mm"], "beam_side_formwork_net_of_slab": qq["beam_side_formwork_net_of_slab"],
+            "source": "median over the truly feasible optimiser designs (B+margin, direct, B)",
+        },
+        "best_reference": {},
+    }
+    feas = [(d["true_cost"], d["true_carbon"], d) for d in variants["direct"] + variants["B_margin"] if d["feasible_true"] and d["true_cost"]]
+    if feas:
+        lo_c = min(feas, key=lambda t: t[0])
+        lo_k = min(feas, key=lambda t: t[1])
+        pick = lambda t: {"cost": t[0], "carbon": t[1], "quantities": t[2].get("quantities"), "concrete": t[2]["concrete"],  # noqa: E731
+                          "steel": t[2]["steel"], "cement": t[2]["cement"]}
+        factors["best_reference"] = {"lowest_cost": pick(lo_c), "lowest_carbon": pick(lo_k)}
+    _write("factors.json", _clean(factors))
+    sample = ROOT / "legacy" / "staad_model" / "G+3 RCC FINAL.STD"
+    if sample.exists():
+        _write("sample.json", {"name": "G+3 RCC FINAL.STD (the owner's model)", "text": sample.read_text(encoding="latin-1")})
+
     # ---------------- provenance
     cr, cf = config.load_dict("cost_rates"), config.load_dict("carbon_factors")
     cost_rows = [{"item": f"Concrete {g}", **{k: v[k] for k in ("value", "unit", "source", "status")}} for g, v in cr["concrete_per_m3"].items()]

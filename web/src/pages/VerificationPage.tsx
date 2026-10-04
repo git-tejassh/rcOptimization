@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
 import { Finding } from "../components/Caveat";
@@ -14,8 +15,17 @@ export default function VerificationPage() {
   const ff = v.full_front[name];
   return (
     <div className="space-y-5">
-      <h1 className="h1">Verification of Pareto designs</h1>
-      <p className="text-sm muted">
+      <PageHeader
+        eyebrow="Is it really safe?"
+        title={"Verification of Pareto designs"}
+        lead="The optimiser's designs were re-run through the full finite-element model and the IS 456 checks to see whether the predictions hold."
+        howTo={[
+          "A design passes only if it is truly feasible AND the predicted checks are close to the true ones.",
+          "The pass rate is shown against the 90 % target exactly as measured; failures are listed with the reason, never hidden.",
+          "“Boundary picks” are the designs closest to a limit, where predictions are weakest.",
+        ]}
+      />
+      <p className="max-w-3xl text-sm muted">
         {v.selection.n_designs} designs per front (cost-quantile picks plus the {v.selection.n_boundary} with the smallest predicted constraint slack) were re-run through OpenSees + the IS 456 checks. A design passes only if it is <em>truly feasible</em> and the surrogate's utilisations are within ±{v.tolerance.util_abs} (absolute) and its deflection within ±{pct(v.tolerance.defl_rel, 0)} (relative) of the truth. The selection rule was fixed before the results; the 90 % target is reported against, not engineered toward.
       </p>
       <div className="flex flex-wrap gap-1" role="group" aria-label="Front variant">

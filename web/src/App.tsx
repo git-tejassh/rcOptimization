@@ -10,6 +10,7 @@ import SensitivityPage from "./pages/SensitivityPage";
 import ProvenancePage from "./pages/ProvenancePage";
 import LivePage from "./pages/LivePage";
 import AboutPage from "./pages/AboutPage";
+import MyDesignPage from "./pages/MyDesignPage";
 
 /** A render error on one page must show a message, never a blank screen. */
 class Boundary extends Component<{ children: ReactNode; page: string }, { err: string | null }> {
@@ -46,6 +47,7 @@ const PAGES: { id: string; label: string; el: () => JSX.Element }[] = [
   { id: "provenance", label: "Data & assumptions", el: ProvenancePage },
   { id: "live", label: "Live evaluator", el: LivePage },
   { id: "about", label: "About", el: AboutPage },
+  { id: "mine", label: "My design estimate", el: MyDesignPage },
 ];
 
 function readHash() {
@@ -60,7 +62,7 @@ function initialDark(): boolean {
   } catch {
     /* storage unavailable: fall back to the OS preference */
   }
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+  return false;   // light, neutral business look by default; the toggle remembers the choice
 }
 
 export default function App() {
@@ -84,27 +86,39 @@ export default function App() {
   return (
     <ThemeCtx.Provider value={{ dark }}>
       {meta.provisional && (
-        <div role="alert" className="bg-amber-500 px-4 py-2 text-center text-sm font-semibold text-black">
-          ⚠ PROVISIONAL DATA - cost rates, emission factors and IS 456 table transcriptions are unverified placeholders; absolute ₹ and kgCO₂e values are indicative only.
-          <a className="ml-2 underline" href="#/provenance">Details</a>
+        <div role="alert" className="px-4 py-1.5 text-center text-xs font-medium" style={{ background: "#f3e7c4", color: "#5c4510" }}>
+          Provisional data: cost rates, several carbon inputs and the IS 456 table transcriptions are unverified placeholders, so absolute ₹ and kgCO₂e values are indicative.
+          <a className="ml-2 underline" href="#/provenance">See details</a>
         </div>
       )}
-      <header className="border-b" style={{ borderColor: "var(--line)" }}>
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
-          <div className="mr-2 text-base font-semibold">RC frame · cost vs embodied carbon</div>
-          <nav className="flex flex-wrap gap-1" aria-label="Pages">
+      <header className="border-b" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg text-white" style={{ background: "var(--accent)" }} aria-hidden>▤</div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold">RC Frame Optimiser</div>
+              <div className="text-xs muted">Cost vs embodied carbon · IS 456 · gravity loads</div>
+            </div>
+          </div>
+          <nav className="flex flex-1 flex-wrap items-center gap-1" aria-label="Pages">
             {PAGES.map((p) => (
-              <a key={p.id} href={`#/${p.id}`} className={`btn ${p.id === page ? "btn-on" : ""}`} aria-current={p.id === page ? "page" : undefined}>
-                {p.label}
+              <a
+                key={p.id}
+                href={`#/${p.id}`}
+                aria-current={p.id === page ? "page" : undefined}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${p.id === page ? "text-white" : p.id === "mine" ? "border" : ""}`}
+                style={p.id === page ? { background: "var(--accent)" } : p.id === "mine" ? { borderColor: "var(--accent)", color: "var(--accent-strong)" } : { color: "var(--muted)" }}
+              >
+                {p.id === "mine" ? "＋ " : ""}{p.label}
               </a>
             ))}
           </nav>
-          <button className="btn ml-auto" onClick={() => setDark(!dark)} aria-label="Toggle dark mode">
+          <button className="btn" onClick={() => setDark(!dark)} aria-label="Toggle dark mode">
             {dark ? "☀ Light" : "☾ Dark"}
           </button>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-5">
+      <main className="mx-auto max-w-7xl px-4 py-6">
         <Boundary page={page}>
           <Page />
         </Boundary>

@@ -1,4 +1,5 @@
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
 import { Finding } from "../components/Caveat";
@@ -10,9 +11,17 @@ export default function SensitivityPage() {
   if (!s) return <div className="card">Sensitivity results not available (run <code>rcopt sensitivity</code> and <code>rcopt export</code>).</div>;
   return (
     <div className="space-y-5">
-      <h1 className="h1">Sensitivity to ±20 % of cost and carbon inputs</h1>
+      <PageHeader
+        eyebrow="What if the inputs are wrong?"
+        title={"Sensitivity to ±20 % of cost and carbon inputs"}
+        lead="How much the best designs change when prices and carbon factors move by ±20 %, and what the cement type would do."
+        howTo={[
+          "Each line is a front re-computed with one input changed; lines close to the baseline mean the result is robust.",
+          "The cement section scans the price premium of a low-carbon cement to show when a real cost-carbon trade-off appears.",
+        ]}
+      />
       <Finding level={s.verdict.includes("NOT") ? "warn" : "info"} text={s.verdict} />
-      <p className="text-sm muted">
+      <p className="max-w-3xl text-sm muted">
         Each scenario re-runs the best-validated optimisation (surrogate B + safety margin, first two seeds) with one input scaled, re-evaluates the pooled front with ground-truth FE <em>under that scenario</em>, and compares it with the baseline front. All base values are provisional, so this page shows robustness of the <em>shape</em>, not of absolute values.
       </p>
       <section className="card">

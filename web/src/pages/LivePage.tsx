@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { GravityCaveat } from "../components/Caveat";
 import { lakh, num, tonnes } from "../format";
 
@@ -44,7 +45,14 @@ export default function LivePage() {
     );
   return (
     <div className="space-y-4">
-      <h1 className="h1">Live evaluator</h1>
+      <PageHeader
+        eyebrow="Local tool"
+        title={"Live evaluator"}
+        lead="Pick any design and compare the surrogate prediction with the exact finite-element result (needs the local API)."
+        howTo={[
+          "Choose a value for each variable, then run the surrogate (instant) or the ground-truth check (about 50 ms).",
+        ]}
+      />
       <GravityCaveat />
       <div className="card grid grid-cols-2 gap-2 md:grid-cols-4">
         {space.genes.map((g, i) => (

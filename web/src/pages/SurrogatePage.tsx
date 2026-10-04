@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { useTheme } from "../App";
 import Plot from "../components/Plot";
 import { Finding } from "../components/Caveat";
@@ -81,8 +82,17 @@ export default function SurrogatePage() {
   const al = s.active_learning as Record<string, any>;
   return (
     <div className="space-y-5">
-      <h1 className="h1">Surrogate performance</h1>
-      <p className="text-sm muted">
+      <PageHeader
+        eyebrow="Trusting the shortcut"
+        title={"Surrogate performance"}
+        lead="How closely the fast machine-learning predictors reproduce the slow, exact finite-element results, overall and near the code limit where mistakes matter most."
+        howTo={[
+          "Surrogate A predicts the checks directly; Surrogate B predicts only the forces and then applies the exact IS 456 formulas.",
+          "Smaller errors (MAE) are better; the “boundary” columns cover designs close to the limit (a ratio between 0.85 and 1.15), the hard case.",
+          "The confusion tables count how often a model says “passes” when the design truly fails (the dangerous mistake).",
+        ]}
+      />
+      <p className="max-w-3xl text-sm muted">
         Hold-out = {s.n_test} designs (grouped by identical sizes, never used for tuning or training); {s.n_test_boundary} of them lie near the feasibility boundary (any ratio in [0.85, 1.15]). Hyper-parameters: 5-fold group CV on the training portion only. Surrogate A = brief (direct utilisation regression, bootstrap XGBoost ensemble); Surrogate B = demand regression + exact IS 456 capacity.
       </p>
       <Finding level="info" text={`Safety margins (95th-percentile boundary abs. error of the worst utilisation): A ${num(s.margin_q95.A, 3)}, B ${num(s.margin_q95.B, 3)} - used by the "+ margin" optimisation runs.`} />

@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Factors } from "./lib/estimate";
 import type {
   ComputeData,
   DesignSpaceData,
   Meta,
   ParetoData,
   CementData,
+  SampleData,
   ProvenanceData,
   SensitivityData,
   SurrogateData,
@@ -20,6 +22,8 @@ export interface AllData {
   compute: ComputeData;
   sensitivity: SensitivityData | null;
   cement: CementData | null;
+  factors: Factors;
+  sample: SampleData | null;
   provenance: ProvenanceData;
   benchmark: Record<string, any>;
 }
@@ -52,7 +56,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [meta, space, pareto, surrogate, verification, compute, sensitivity, cement, provenance, benchmark] = await Promise.all([
+        const [meta, space, pareto, surrogate, verification, compute, sensitivity, cement, provenance, benchmark, factors, sample] = await Promise.all([
           get<Meta>("meta"),
           get<DesignSpaceData>("design_space"),
           get<ParetoData>("pareto"),
@@ -63,10 +67,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
           get<CementData>("cement", true),
           get<ProvenanceData>("provenance"),
           get<Record<string, any>>("benchmark"),
+          get<Factors>("factors"),
+          get<SampleData>("sample", true),
         ]);
         setData({
           meta: meta!, space: space!, pareto: pareto!, surrogate: surrogate!, verification: verification!,
-          compute: compute!, sensitivity, cement, provenance: provenance!, benchmark: benchmark!,
+          compute: compute!, sensitivity, cement, provenance: provenance!, benchmark: benchmark!, factors: factors!, sample,
         });
       } catch (e) {
         setErr(String(e));

@@ -1,4 +1,5 @@
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { Finding, GravityCaveat, Stat } from "../components/Caveat";
 import { num, pct } from "../format";
 
@@ -7,12 +8,16 @@ export default function Overview() {
   const h = meta.headline as Record<string, number>;
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="h1">{meta.project}</h1>
-        <p className="mt-1 text-sm muted">
-          OpenSeesPy-generated data → XGBoost surrogates → constrained NSGA-II (pymoo) → Pareto front → FE re-verification. Regular G+3 RC moment frame (the owner's STAAD model), IS 456:2000, discrete IS-standard sections / bars / grades.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Project summary"
+        title={meta.project}
+        lead="A reproducible tool that searches for RC frame designs that are cheap and low in embodied carbon while passing the IS 456 checks, and measures how far a machine-learning shortcut can be trusted."
+        howTo={[
+          "The cards give the headline numbers: data analysed, designs found, how well they were verified, and the speed-up.",
+          "“What the results say” lists the findings in plain words, including the unfavourable ones.",
+          "Open the Pareto explorer to browse the designs, or My design estimate to price your own frame.",
+        ]}
+      />
       <GravityCaveat />
       <section aria-label="Headline numbers" className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="FE dataset" value={`${h.dataset_rows_ok}`} sub={`${h.dataset_feasible} truly feasible · all runs kept`} />

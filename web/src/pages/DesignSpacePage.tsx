@@ -1,4 +1,5 @@
 import { useData } from "../data";
+import PageHeader from "../components/PageHeader";
 import { sci } from "../format";
 
 const GROUP_COLORS = ["#0ea5e9", "#f59e0b", "#10b981", "#a855f7"];
@@ -74,10 +75,16 @@ export default function DesignSpacePage() {
   const grouped = space.genes.filter((g) => !["fck", "fy"].includes(g.name));
   return (
     <div className="space-y-5">
-      <h1 className="h1">Design space</h1>
-      <p className="text-sm muted">
-        {space.n_genes} integer genes → {sci(space.total_combinations)} combinations. Every gene is an index into an IS-standard option list; a deterministic repair snaps any candidate to the nearest buildable design (so no continuous relaxation is ever reported).
-      </p>
+      <PageHeader
+        eyebrow="The inputs"
+        title={"Design space"}
+        lead="Everything the optimiser is allowed to choose, and the code rules every design must satisfy."
+        howTo={[
+          "Each variable is a list of standard options (IS 1786 bar sizes, IS 456 concrete grades, cement types, member sizes in 25-50 mm steps).",
+          "The frame sketch shows which members share one section (the colours are the optimisation groups).",
+          "A design counts as feasible only if it meets every constraint in the second table.",
+        ]}
+      />
       <section className="card">
         <h2 className="h2 mb-2">Frame (G+3, parsed from the owner's STAAD model)</h2>
         <FrameSketch />
