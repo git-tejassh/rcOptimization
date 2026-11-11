@@ -4,6 +4,7 @@
 
 | File | Who should read it | What it contains |
 |---|---|---|
+| `SHOWCASE_CHECKLIST.md` | **everyone before the demo** | What to run tonight, the 5-minute demo story, the fallback if the laptop fails, and the limitations to state first. |
 | `IS456_VERIFICATION.md` | civil members, viva | Line-by-line record of every IS 456 value checked against the printed code (clause, page, printed value, value used) and where the project is deliberately stricter than the code. |
 | `CARBON_SOURCES_TO_CITE.md` | **whoever replaces the carbon numbers** | Which IS codes define the materials, which standards define the carbon method, and which EPDs / databases to take the numbers from; includes a warning about disagreeing published cement factors. |
 | `PROGRESS_AND_TODO.md` | **everyone — start here** | What is finished, what is left, who can do which task, success-criteria status, known limits. |
