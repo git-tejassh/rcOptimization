@@ -340,7 +340,7 @@ export default function MyDesignPage() {
               <div>
                 <div className="eyebrow">Step 4</div>
                 <h2 className="h2">Prices and carbon factors (editable)</h2>
-                <p className="mt-0.5 text-sm muted">Green fields differ from the project values. Prices are provisional placeholders, so replace them with your own quotes.</p>
+                <p className="mt-0.5 text-sm muted">Green fields differ from the project values. Prices are placeholders, so replace them with your own quotes (to re-run the optimiser with them use “Optimise with my prices”).</p>
               </div>
               <button className="btn" disabled={!nChanged} onClick={() => setRates(cloneRates(factors))}>Reset all to project values</button>
             </div>

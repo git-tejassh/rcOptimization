@@ -39,7 +39,7 @@ export default function AboutPage() {
           <li>Seismic (IS 1893 / IS 13920) and wind design: gravity only. A seismic hook (interfaces only) exists in <code>rcopt/seismic</code>; no seismic results are claimed.</li>
           <li>Foundations, construction-sequence and operational carbon, slab design, steel (IS 800) members, other building typologies.</li>
           <li>Formwork carbon is excluded; formwork cost is included at a provisional rate.</li>
-          <li>The cost rates, emission factors and IS table transcriptions are provisional until the owner verifies them.</li>
+          <li>The unit prices are placeholders (editable on “Optimise with my prices”) and some emission inputs are provisional; the IS 456 values were checked against the printed code (docs/IS456_VERIFICATION.md).</li>
         </ul>
       </section>
       <section className="card text-sm">

@@ -1,7 +1,7 @@
 # Task runner (POSIX). Windows users: use make.ps1 with the same target names.
 PY ?= $(if $(wildcard .venv/Scripts/python.exe),.venv/Scripts/python.exe,.venv/bin/python)
 
-.PHONY: setup audit phase0 phase0b phase1 phase2 phase3 phase4 phase5 all test test-slow lint export \
+.PHONY: setup audit phase0 phase0b phase1 phase2 phase3 phase4 phase5 all reoptimize test test-slow lint export \
         web-dev web-build api clean
 
 setup:
@@ -31,7 +31,11 @@ phase5:
 export:
 	$(PY) -m rcopt.cli export
 
-all: phase0 phase0b phase1 phase2 phase3 phase4 phase5 export
+all:
+	$(PY) -m rcopt.cli all          # phase0 .. phase5, sensitivity, cement scan, report, export
+
+reoptimize:        # usage: make reoptimize PRICES=my_prices.csv
+	$(PY) -m rcopt.cli reoptimize --prices $(PRICES)
 
 test:
 	$(PY) -m pytest -m "not slow"

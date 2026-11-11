@@ -1,0 +1,13 @@
+# Unit prices in INR. Every default is a PLACEHOLDER (not a verified market rate): replace with current local rates.
+# Only 'item' and 'value' are read; other columns are for people.
+item,value,unit,label,status
+concrete_M25,5500.0,INR/m3,Concrete M25 (placed),provisional
+concrete_M30,6000.0,INR/m3,Concrete M30 (placed),provisional
+concrete_M35,6500.0,INR/m3,Concrete M35 (placed),provisional
+concrete_M40,7000.0,INR/m3,Concrete M40 (placed),provisional
+steel_Fe500,70.0,INR/kg,"Reinforcement Fe500 (supplied, cut, bent, placed)",provisional
+steel_Fe415,68.0,INR/kg,"Reinforcement Fe415 (supplied, cut, bent, placed)",provisional
+formwork_m2,700.0,INR/m2,Formwork (contact area),provisional
+cement_OPC,7.9,INR/kg,Cement OPC (concrete rates assume PPC),provisional
+cement_PPC,7.5,INR/kg,Cement PPC (concrete rates assume PPC),provisional
+cement_PSC,7.3,INR/kg,Cement PSC (concrete rates assume PPC),provisional

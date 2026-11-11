@@ -181,13 +181,28 @@ def design_space() -> DesignSpaceCfg:
     return DesignSpaceCfg(**_read("design_space"))
 
 
+# Metadata keys describe where a value comes from; changing them must not invalidate cached FE data or trained models.
+_META_KEYS = {"status", "source", "date", "unit", "confidence", "india_specific", "note", "notes", "scope"}
+# Settings that change the structural response / the learning data. Prices and carbon factors are NOT here: they only
+# re-price designs, so editing them must not trigger a new FE batch or retraining (phase 2 / 3 cache on this set).
+STRUCTURE = ("geometry", "loads", "design_space", "is456_tables", "solver", "quantities")
+
+
+def _strip_meta(node: Any) -> Any:
+    if isinstance(node, dict):
+        return {k: _strip_meta(v) for k, v in node.items() if k not in _META_KEYS}
+    if isinstance(node, list):
+        return [_strip_meta(v) for v in node]
+    return node
+
+
 def config_hash(names: tuple[str, ...] | None = None) -> str:
-    """Stable SHA-256 (first 16 hex chars) over the named YAML files (default: all)."""
+    """Stable SHA-256 (first 16 hex chars) over the values of the named YAML files (default: all); metadata keys are ignored."""
     files = sorted(CONFIG_DIR.glob("*.yaml")) if names is None else [CONFIG_DIR / f"{n}.yaml" for n in names]
     h = hashlib.sha256()
     for f in files:
         h.update(f.name.encode())
-        h.update(json.dumps(yaml.safe_load(f.read_text(encoding="utf-8")), sort_keys=True).encode())
+        h.update(json.dumps(_strip_meta(yaml.safe_load(f.read_text(encoding="utf-8"))), sort_keys=True).encode())
     return h.hexdigest()[:16]
 
 

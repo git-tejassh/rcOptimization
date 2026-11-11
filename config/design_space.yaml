@@ -24,7 +24,7 @@ global:
   concrete_grade: [M20, M25, M30, M35, M40]
   steel_grade: [Fe415, Fe500]
   cement_type: [OPC, PPC, PSC]   # IS 269 / IS 1489 (Part 1) / IS 455; affects cost and carbon only, not the structural response
-# IS 456 Table 5 (durability) and Table 16 (cover) by exposure: PROVISIONAL transcription, owner must verify.
+# IS 456 Table 5 (durability, printed p. 20) and Table 16 (cover, p. 47) by exposure: checked against the printed code (docs/IS456_VERIFICATION.md).
 # The chosen exposure removes concrete grades below its minimum from the option list (a grade below the minimum is not allowed).
 exposure_requirements:
   mild:        {min_grade: M20, min_cement_kg_m3: 300, max_water_cement: 0.55, cover_beam_mm: 20}
@@ -32,7 +32,7 @@ exposure_requirements:
   severe:      {min_grade: M30, min_cement_kg_m3: 320, max_water_cement: 0.45, cover_beam_mm: 45}
   very_severe: {min_grade: M35, min_cement_kg_m3: 340, max_water_cement: 0.45, cover_beam_mm: 50}
   extreme:     {min_grade: M40, min_cement_kg_m3: 360, max_water_cement: 0.40, cover_beam_mm: 75}
-cover_mm:                       # IS 456 Table 16 / cl. 26.4.2.1; exposure = moderate (record in ASSUMPTIONS)
+cover_mm:                       # IS 456 Table 16 (moderate 30 mm) / cl. 26.4.2.1 (columns >= 40 mm); exposure = moderate
   exposure: moderate
   beam: 30
   column: 40

@@ -1,6 +1,6 @@
 # What is finished, what is left (written for the whole team)
 
-*Snapshot of the repository after a complete walk-through of every file. "Verified" below means it was actually run: **77 automatic tests pass, the code-style check is clean**, the website builds and every page renders (checked in a browser).*
+*Updated 2026-11-11. "Verified" below means it was actually run: **the automatic tests pass, the code-style check is clean**, the website builds and every page renders (checked in a browser).*
 
 ---
 
@@ -29,6 +29,10 @@
 * **Cement type as the 23rd design variable** and a cement price-premium study (`cement_tradeoff.json`).
 * **Professional website** — light/green, grouped header menus, one title per page, plain-language page guides, red/yellow/green Pareto zones, full property sheet of any point, best-case cards, a table of *every* Pareto point with all its feature values.
 * **"My design estimate" tab** — upload a STAAD file, edit every price/carbon factor, quantities + cost + carbon, **IS 456 strength review with designed reinforcement**, **several suggested optimised designs**, downloadable final report.
+* **IS 456 values checked against the printed code** (owner's PDF, 2026-11-11): every value matched, nothing changed; record in `docs/IS456_VERIFICATION.md`; `config/is456_tables.yaml` is now `status: sourced`.
+* **Prices are placeholders you can change before optimising**: dashboard tab *Optimise with my prices* (input boxes, sliders, CSV load/download) and `rcopt reoptimize --prices file.csv`; the optimiser is re-run with the new prices (about 1.5 minutes) and every design is re-checked with the exact model. With a slag-cement price premium it produces a real cost-vs-carbon trade-off (6 trade-off points in a test).
+* **Carbon sources researched**: `docs/CARBON_SOURCES_TO_CITE.md` (which IS codes define the materials, which standards define the method, which EPDs/databases to take the numbers from).
+* **GitHub Pages workflow** (`.github/workflows/pages.yml`) publishes the website on every push once Pages is enabled.
 * **One-command server** (`rcopt serve`) and a **deployment guide**, Dockerfile, Render and Vercel files.
 
 ### 1.3 Success criteria of the project brief (S1–S5)
@@ -47,10 +51,10 @@
 ### 2.1 Must be done by the team (nobody else can do these) — highest priority
 | # | Task | Where | Why it matters |
 |---|---|---|---|
-| 1 | **Replace the placeholder prices** with current Bhopal rates (Essco list / MP PWD SOR / CPWD DSR): concrete per m³ by grade, steel per kg, formwork per m², cement per kg (OPC/PPC/PSC). Set `status: sourced`. | `config/cost_rates.yaml` | All ₹ values are indicative until then; the shape of the front depends on price ratios. |
-| 2 | **Check the IS 456 table transcriptions** (Table 19, Table 20, xu,max/d, stress-strain curve, steel limits…) against the printed code / SP 16. | `config/is456_tables.yaml`, list `docs/ASSUMPTIONS.md` A1–A12 | They were typed from memory; a wrong cell changes the safety results. |
-| 3 | **Replace provisional carbon inputs**: cement content per grade, other concrete constituents, transport distances (ideally supplier EPDs). | `config/carbon_factors.yaml`, `docs/CARBON_DATA_AUDIT.md` | Absolute kgCO₂e is indicative until then. |
-| 4 | After changing 1–3, **re-run** everything (`.\make.ps1 all`, about 2 h) and rebuild the website (`cd web; npm run build`). | – | Updates all numbers, plots and the report draft automatically. |
+| 1 | **Replace the placeholder prices** with current Bhopal rates (Essco list / MP PWD SOR / CPWD DSR): concrete per m³ by grade, steel per kg, formwork per m², cement per kg (OPC/PPC/PSC). Quickest: type them in the dashboard tab *Optimise with my prices* or fill `config/prices_template.csv`; for the final report also set them in `config/cost_rates.yaml` and `status: sourced`. | `config/cost_rates.yaml`, `config/prices_template.csv` | All ₹ values are indicative until then; the shape of the front depends on price ratios. |
+| 2 | ~~Check the IS 456 table transcriptions~~ **DONE 2026-11-11** against your PDF (nothing changed). Remaining for you: read `docs/IS456_VERIFICATION.md` section 3 (where the project is deliberately stricter than the code) and decide if the guide accepts it. | `docs/IS456_VERIFICATION.md` | – |
+| 3 | **Replace provisional carbon inputs**: cement GWP, steel GWP, cement content per grade, transport. Which IS codes / EPDs to cite: `docs/CARBON_SOURCES_TO_CITE.md`. | `config/carbon_factors.yaml` | Absolute kgCO₂e is indicative until then. |
+| 4 | After changing 1 and 3 in the YAML files, **re-run** (`.\make.ps1 all`): the FE dataset and the trained models are re-used (editing prices/carbon does not retrain), phases 4–5 and the rest take about an hour. Then rebuild the website (`cd web; npm run build`). | – | Updates all numbers, plots and the report draft automatically. |
 | 5 | **Decide with the guide**: defend the cracked-stiffness factors (beams 0.35, columns 0.70), exposure/cover (moderate, 30/40 mm), PPC as the baseline cement, 6 %/4 % column steel cap. | `config/solver.yaml`, `config/design_space.yaml` | Not validated by STAAD; the guide may prefer other values. |
 | 6 | **Upload the large files to Google Drive** and paste the link into `README.md` (`<ADD LINK HERE>`). `models.zip` (286 MB) is already packed in the repo folder; other files are listed in `docs/LARGE_FILES.md`. | `README.md`, `docs/LARGE_FILES.md` | Teammates cannot use the live evaluator without the models. |
 | 7 | **Write the final project report** from `docs/REPORT_DRAFT.md` (it has the real numbers but is a draft) and prepare the presentation. Practise the questions in `docs/VIVA_PREP.md`. | `docs/` | Main deliverable for the guide. |
@@ -71,8 +75,7 @@
 * STAAD benchmark covers gravity results only; the STAAD beam design was aborted by the owner, so beams are not benchmarked against STAAD.
 
 ### 2.4 Optional improvements if time remains (none required)
-* Run `make setup && make all` once on a **fresh clone** to prove reproducibility (not done after the last changes; stages were run individually).
-* `make all` / `make.ps1 all` run phase0–5 + export only; sensitivity, cement scan and report are run by `python -m rcopt.cli all`. Make the two consistent.
+* Run `make setup && make all` once on a **fresh clone** to prove reproducibility (a fresh-clone smoke test of the fast tests is described in STATUS.md; the full 2 h run on a clean clone was not repeated).
 * Confirm the GitHub Actions workflow is green after the next push (it has not been checked on GitHub).
 * Add automatic tests for the website (currently verified by building and by hand).
 * Extend the strength review to irregular frames and to the STAAD load cases; add a detailing check.

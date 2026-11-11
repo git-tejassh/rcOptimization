@@ -44,3 +44,13 @@ class ReviewIn(BaseModel):
     concrete: str = "M30"
     steel: str = "Fe500"
     cement: str = "PPC"
+
+
+class OptimizeIn(BaseModel):
+    """Unit prices to optimise with (either ``prices`` {item: value} or ``csv`` text 'item,value'); missing items keep the placeholder default."""
+
+    prices: dict[str, float] | None = None
+    csv: str | None = Field(None, description="CSV text with item,value rows (see GET /prices/items)")
+    mode: str = Field("quick", description="quick (about 1.5 min) | standard (about 5 min)")
+    engine: str = Field("B_margin", description="B_margin | B | A_margin | A | direct")
+    seed: int = 1

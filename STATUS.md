@@ -19,13 +19,15 @@
 * Cement type (OPC / PPC / PSC) is now a design variable. At market prices PSC is cheaper AND lower-carbon, so it dominates (best carbon -18 % vs the run without it) and the rank-1 Pareto sets grow to 6-13 points, still below 25. A real cost-carbon trade-off needs a low-carbon cement that costs more: `data/results/cement_tradeoff.json` scans that premium; the cement prices are provisional.
 * Surrogate A without a margin lands on the constraint boundary (verification pass 40 %); B (exact capacity) is best: 87 %, and 90 % with the margin.
 * Surrogate speed-up vs direct FE: see docs/REPORT_DRAFT.md section 7; including data generation and training it does not pay off.
-* Cost rates, cement content, transport and IS-table transcriptions are still provisional (docs/ASSUMPTIONS.md); gravity only.
+* Unit prices are placeholders (editable before optimising), cement content, transport and some carbon inputs are provisional (docs/ASSUMPTIONS.md); the IS 456 values are verified against the printed code (docs/IS456_VERIFICATION.md); gravity only.
 
 ## Definition of Done checklist
 - [x] LEGACY_AUDIT; originals under legacy/ - [x] IS 456 anchors - [x] STAAD benchmark - [x] FE dataset with status flags
 - [x] Two surrogates - [x] NSGA-II surrogate + direct, 5 seeds, HV + compute table - [x] verification incl. failures
 - [x] web builds, all 10 pages render - [x] API smoke tests - [x] ASSUMPTIONS - [x] REPORT_DRAFT with real numbers - [x] CI config
 - [ ] `make setup && make all` on a clean clone was NOT re-run end to end after the final changes (stages were run individually; cached)
+
+**2026-11-11:** IS 456 values verified against the printed code (docs/IS456_VERIFICATION.md, no value changed); unit prices are placeholders editable before optimising (dashboard tab 'Optimise with my prices', `rcopt reoptimize --prices file.csv`, API `/optimize/prices`); cache fingerprints no longer retrain when only prices/carbon/metadata change; GitHub Pages workflow; `make all` now runs every stage; carbon sources researched (docs/CARBON_SOURCES_TO_CITE.md). Results of phases 4-5 still correspond to the carbon factors of 2026-10-04 and must be re-run once the team has final carbon values.
 
 What is finished / left, per person: `docs/PROGRESS_AND_TODO.md`. Every folder has a `README.md` explaining each file.
 

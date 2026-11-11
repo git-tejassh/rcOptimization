@@ -1,7 +1,11 @@
-# IS 456:2000 tables transcribed for this project.  status: provisional until the owner checks each
-# against their own copy of IS 456 / SP 16 (listed in docs/ASSUMPTIONS.md).  Units: N/mm2 (MPa).
-source: "IS 456:2000, transcribed from memory/secondary knowledge; NOT checked against the printed code"
-status: provisional
+# IS 456:2000 tables used by the project.  Units: N/mm2 (MPa).
+# Every value below was checked against the owner's copy of the standard (is.456.2000.pdf, incl. Amendment No. 1)
+# on 2026-11-11; clause / page references and the comparison are in docs/IS456_VERIFICATION.md.
+# Table 19 cells, Table 20, xu,max/d, Es, Fig. 23 stress levels (0.80-0.975 fy) and strains, Table 5, Table 16, cl. 25.4,
+# 26.5.1.1, 26.5.1.5-6, 26.5.3, 39.6 and 39.7.1 match the printed code. Not covered by the printed code: Fig. 4 / 5
+# span-depth modification factors (diagnostic only, see docs/ASSUMPTIONS.md A12).
+source: "IS 456:2000 (with Amendment No. 1), checked against the owner's PDF copy on 2026-11-11"
+status: sourced
 concrete:
   fck_MPa: {M20: 20, M25: 25, M30: 30, M35: 35, M40: 40}
 steel:
@@ -10,7 +14,7 @@ steel:
   partial_safety: 1.15           # fyd = fy/1.15 = 0.87 fy
   # xu,max/d (cl. 38.1 note / Annex G-1.1)
   xu_max_over_d: {Fe415: 0.48, Fe500: 0.46}
-  # Design stress-strain curve (IS 456 Fig. 23 / SP 16): fraction of fyd -> inelastic strain increment.
+  # Design stress-strain curve (IS 456 Fig. 23A: stress levels 0.80/0.85/0.90/0.95/0.975 fy, inelastic strains 0.0001/0.0003/0.0007/0.001/0.002): fraction of fyd -> inelastic strain increment.
   curve_stress_fraction: [0.80, 0.85, 0.90, 0.95, 0.975, 1.00]
   curve_inelastic_strain: [0.0, 0.0001, 0.0003, 0.0007, 0.0010, 0.0020]
 # Table 19: design shear strength of concrete tau_c (N/mm2) vs pt = 100 As/(b d)

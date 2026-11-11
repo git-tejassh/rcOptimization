@@ -4,11 +4,13 @@
 
 | File | Who should read it | What it contains |
 |---|---|---|
+| `IS456_VERIFICATION.md` | civil members, viva | Line-by-line record of every IS 456 value checked against the printed code (clause, page, printed value, value used) and where the project is deliberately stricter than the code. |
+| `CARBON_SOURCES_TO_CITE.md` | **whoever replaces the carbon numbers** | Which IS codes define the materials, which standards define the carbon method, and which EPDs / databases to take the numbers from; includes a warning about disagreeing published cement factors. |
 | `PROGRESS_AND_TODO.md` | **everyone — start here** | What is finished, what is left, who can do which task, success-criteria status, known limits. |
 | `REPORT_DRAFT.md` *(generated)* | everyone — it is the skeleton of the final report | Abstract, method, results (dataset, surrogates, Pareto fronts, verification, compute comparison), limitations, conclusions — all with the real numbers. Needs editing into the final written report. |
 | `VIVA_PREP.md` *(generated)* | everyone | Likely questions from the guide with answers backed by the numbers. |
-| `ASSUMPTIONS.md` | **the team (must act)** | The master list of every unverified or chosen value (IS 456 tables A1–A12, loads, prices, carbon, cement) with "owner must verify" flags. |
-| `DECISIONS.md` | anyone curious "why?" | 28 numbered decisions (D-001 … D-028): the question, options, choice, reason and how to reverse it — e.g. why genome repair, why Surrogate B uses column position classes, why cement is a variable. |
+| `ASSUMPTIONS.md` | **the team (must act)** | The master list of every unverified or chosen value (IS 456 items A1–A13 now checked against the printed code, loads, placeholder prices, carbon, cement) with "owner must verify" flags. |
+| `DECISIONS.md` | anyone curious "why?" | 31 numbered decisions (D-001 … D-031): the question, options, choice, reason and how to reverse it — e.g. why genome repair, why Surrogate B uses column position classes, why cement is a variable. |
 | `STANDARDS_COMPLIANCE.md` | civil members | What IS clauses are enforced in every reported design and what is **not** (seismic, wind, torsion, detailing…). |
 | `BENCHMARK.md` *(generated)* | civil members | The OpenSees-versus-STAAD comparison tables and how two early differences (wall-load torque, shear deformation) were found and fixed. |
 | `CARBON_DATA_AUDIT.md` | whoever replaces the carbon data | Where each carbon factor came from, its confidence and what a real source would be. |

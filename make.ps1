@@ -16,7 +16,8 @@ switch ($Target) {
   "phase4"    { Run "$py -m rcopt.cli phase4" }
   "phase5"    { Run "$py -m rcopt.cli phase5" }
   "export"    { Run "$py -m rcopt.cli export" }
-  "all"       { foreach ($t in "phase0","phase0b","phase1","phase2","phase3","phase4","phase5","export") { & $PSCommandPath $t } }
+  "all"       { Run "$py -m rcopt.cli all" }
+  "reoptimize" { Run "$py -m rcopt.cli reoptimize --prices prices.csv" }
   "test"      { Run "$py -m pytest -m 'not slow'" }
   "test-slow" { Run "$py -m pytest" }
   "lint"      { Run "$py -m ruff check ." }

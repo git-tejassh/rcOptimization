@@ -1,4 +1,4 @@
-# `tests/` — the safety net (77 automatic checks, all passing)
+# `tests/` — the safety net (automatic checks, all passing)
 
 **Plain words:** each test asks the code a question whose correct answer is known independently (a textbook formula, a hand calculation, the STAAD result,
 a physical law such as "forces in equilibrium"). If someone changes the code and breaks something, a test turns red. Run them with
@@ -12,6 +12,7 @@ a physical law such as "forces in equilibrium"). If someone changes the code and
 | `test_benchmark.py` | The model matches the owner's STAAD results within tolerance (reactions, displacements, column forces/moments); the STAAD parser agrees with `config/geometry.yaml` and `loads.yaml`. *Skipped if the STAAD binaries are not on the machine.* |
 | `test_sampling.py` | Latin-hypercube is stratified per gene, reproducible by seed, the biased sampler rejects undersized designs, no physically impossible rows in the design matrix. |
 | `test_optimize.py` | Hypervolume has the right known value, spacing metric, the repair operator keeps genomes integer and buildable, evaluators memoise and count FE solves, a tiny NSGA-II run works, cost/carbon scenarios scale correctly. |
+| `test_prices.py` | Editable prices: the CSV template round-trips, bad input is rejected, a price override changes the cost exactly (and is scoped), the cement price premium only hits non-baseline cements, the IS 456 table values equal the printed code, the cache fingerprint ignores metadata and keeps prices out of the retraining trigger, a tiny price-driven optimisation runs end to end, API validation. |
 | `test_api.py` | Server smoke tests: `/health`, input validation, exact-FE and cost-carbon endpoints, surrogate close to truth (skipped without models), results endpoints, **strength review passes the sample frame and fails an undersized-column frame**. |
 
 Not covered by automatic tests: the website (it is checked by building it, `npm run build`, and by hand in a browser).

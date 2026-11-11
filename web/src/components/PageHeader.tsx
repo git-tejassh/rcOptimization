@@ -11,6 +11,7 @@ const ACTIONS: Record<string, Action[]> = {
   overview: [{ label: "Explore the designs", href: "#/pareto", primary: true }, { label: "Estimate my design", href: "#/mine" }],
   space: [{ label: "Browse the designs", href: "#/pareto", primary: true }, { label: "Read the assumptions", href: "#/provenance" }],
   pareto: [{ label: "Estimate my own design", href: "#/mine", primary: true }, { label: "How it was verified", href: "#/verification" }],
+  optimise: [{ label: "Estimate my own design", href: "#/mine", primary: true }, { label: "Pareto explorer", href: "#/pareto" }],
   surrogate: [{ label: "See the verification", href: "#/verification", primary: true }, { label: "Compute comparison", href: "#/compute" }],
   verification: [{ label: "Open the Pareto explorer", href: "#/pareto", primary: true }, { label: "Surrogate performance", href: "#/surrogate" }],
   compute: [{ label: "Sensitivity of the result", href: "#/sensitivity", primary: true }, { label: "Back to the overview", href: "#/overview" }],

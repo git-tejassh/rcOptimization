@@ -24,6 +24,7 @@
 | `SensitivityPage.tsx` | Sensitivity | ±20 % steel cost / cement carbon / steel carbon and the cement-type (price-premium) trade-off. |
 | `ProvenancePage.tsx` | Data & assumptions | The assumptions, decisions, benchmark and carbon audit shown as readable documents; provisional items list. |
 | `LivePage.tsx` | Live evaluator | Pick a design, compare surrogate prediction vs exact FE (needs the server); otherwise a readiness checklist and a box to type a server address. |
+| `OptimisePage.tsx` | **Optimise with my prices** | Step 1: one input box + slider per unit price (changed prices turn green, "reset" per price), load/download prices as CSV. Step 2: choose quick or thorough, press Optimise (needs the local server; shows live progress). Step 3: the new designs on a cost-vs-carbon plot (colour = cement), the earlier optimum re-priced, a table of all designs with every property, downloads. |
 | `AboutPage.tsx` | About | Honest novelty, the method in one paragraph, deviations from the original brief, what is out of scope, how to reproduce. |
 | `MyDesignPage.tsx` | **My design estimate** | Step 1 choose the source (upload STAAD file / start from an optimised design / enter member totals) → Step 2 materials → Step 3 **strength review** (server) → Step 4 edit any price or carbon factor (changed fields turn green, one-click reset) → quantities, cost, carbon, zone vs the optimiser → **suggested optimised designs** → table of **every Pareto point** → downloadable/printable **final report**. |
 
@@ -45,4 +46,4 @@
 | `estimate.ts` | Cost / carbon / quantity arithmetic — same formulas and constants as the Python code, with user-edited rates. |
 | `zones.ts` | Best/good/bad zone logic and the coloured rectangles drawn on the Pareto plot. |
 | `report.ts` | Builds the downloadable HTML design review report. |
-| `api.ts` | Talks to the local server: finds its address (same origin, or one typed in and remembered), health check. Static hosting simply has no API and the callers handle that. |
+| `api.ts` | Talks to the local server (health, strength review, start/poll a price-driven optimisation): finds its address (same origin, or one typed in and remembered), health check. Static hosting simply has no API and the callers handle that. |

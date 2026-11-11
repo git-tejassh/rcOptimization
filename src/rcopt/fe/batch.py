@@ -59,7 +59,7 @@ def run_phase2(force: bool = False, n_jobs: int | None = None) -> dict:
     """Run FE + checks for the design matrix (skipped if inputs unchanged). Returns the runtime record."""
     space = default_space()
     matrix = pd.read_parquet(ROOT / "data" / "processed" / "design_matrix.parquet")
-    chash = config.config_hash()
+    chash = config.config_hash(config.STRUCTURE + ("sampling",))
     inputs = {"config_hash": chash, "n_matrix": len(matrix)}
     if DATASET_PATH.exists() and META_PATH.exists() and not force:
         meta = json.loads(META_PATH.read_text())

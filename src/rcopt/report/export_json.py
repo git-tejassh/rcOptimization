@@ -116,7 +116,7 @@ def _load(name: str) -> dict:
 def _findings(ds: pd.DataFrame, sm: dict, ver: dict, ff: dict, cmp_: dict, opt: dict, sens: dict | None) -> list[dict]:
     f: list[dict] = []
     ok = ds[ds.status == "OK"]
-    f.append({"level": "warn", "text": "Cost rates, emission factors and the IS 456 table transcriptions are PROVISIONAL (not verified). Absolute INR / kgCO2e values are indicative only."})
+    f.append({"level": "warn", "text": "Unit prices are PLACEHOLDERS (change them on the \"Optimise with my prices\" tab); cement content, transport and the cement / steel emission factors are provisional or secondary-source. The IS 456 values were checked against the printed code (docs/IS456_VERIFICATION.md). Absolute INR / kgCO2e values are indicative only."})
     f.append({"level": "warn", "text": "Gravity loading only: no seismic or wind design. See the caveat on every design page."})
     if ok.defl_ratio_max.max() < 1.0:
         f.append({"level": "info", "text": f"Deflection (L/250) never governed in the {len(ok)} analysed designs (largest ratio {ok.defl_ratio_max.max():.2f}); shear (tau_v / tau_c,max) never exceeded {ok.U_shear_max.max():.2f}. "
@@ -292,6 +292,8 @@ def export_all() -> dict:
             "decisions_markdown": (ROOT / "docs" / "DECISIONS.md").read_text(encoding="utf-8"),
             "benchmark_markdown": (ROOT / "docs" / "BENCHMARK.md").read_text(encoding="utf-8")}
     carbon_audit = ROOT / "docs" / "CARBON_DATA_AUDIT.md"
+    is_ver = ROOT / "docs" / "IS456_VERIFICATION.md"
+    prov["is456_markdown"] = is_ver.read_text(encoding="utf-8") if is_ver.exists() else ""
     prov["carbon_audit_markdown"] = carbon_audit.read_text(encoding="utf-8") if carbon_audit.exists() else ""
     _write("provenance.json", prov)
 

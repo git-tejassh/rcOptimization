@@ -44,3 +44,4 @@ models/*.joblib
 models/xgb_*.json
 data/processed/opt/
 models.zip
+is.456.2000.pdf

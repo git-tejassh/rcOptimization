@@ -226,6 +226,7 @@ export interface ProvenanceData {
   decisions_markdown: string;
   benchmark_markdown: string;
   carbon_audit_markdown: string;
+  is456_markdown?: string;
 }
 
 export interface SampleData {

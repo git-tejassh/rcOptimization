@@ -3,8 +3,7 @@
 Final-year B.Tech Civil major project (7th semester), MANIT Bhopal. OpenSeesPy-generated data, XGBoost surrogates, constrained NSGA-II (pymoo),
 Pareto front, FE re-verification, and a dashboard website. Validated against the owner's STAAD.Pro model (reactions to 1e-5, column moments to 0.12 %).
 
-> **Caveats you must read:** designs are checked for **gravity loading only** (no seismic / wind); cost rates and several carbon inputs are
-> provisional, IS 456 tables are transcribed from memory and need checking against the printed code (`docs/ASSUMPTIONS.md`).
+> **Caveats you must read:** designs are checked for **gravity loading only** (no seismic / wind); unit prices are **placeholders** (you can type your own and re-optimise, see below) and some carbon inputs are provisional (`docs/ASSUMPTIONS.md`, `docs/CARBON_SOURCES_TO_CITE.md`). The IS 456 values were checked against the printed code (`docs/IS456_VERIFICATION.md`).
 > No novelty of algorithm is claimed (NSGA-II for RC frames: Kaveh et al., 2016); the contribution is a validated, India-contextualised application.
 
 **New here (especially non-programmers)? Read in this order:** (1) this page → (2) [`docs/PROGRESS_AND_TODO.md`](docs/PROGRESS_AND_TODO.md) (what is finished, what is left, who can do what) → (3) open the website (below) → (4) [`docs/README.md`](docs/README.md) (guide to all documents). Every folder has its own `README.md` explaining each file.
@@ -44,15 +43,21 @@ What the software does, step by step:
 | I want everything (live evaluator + strength review) | Windows PowerShell: `.venv\Scripts\python.exe -m rcopt.cli serve` → open http://localhost:8000 |
 | I want to show it to the guide / teammates | See [`docs/DEPLOY.md`](docs/DEPLOY.md): same Wi-Fi (`--host 0.0.0.0`), temporary public link (cloudflared/ngrok), permanent static site (Vercel/GitHub Pages), or full online server (Docker/Render). |
 
-Tabs: Overview · Design space · Pareto explorer (red/yellow/green zones, full property sheet, best-case cards, table of all front points) · Surrogate performance · Verification · Compute comparison · Sensitivity (incl. cement type) · Data & assumptions · Live evaluator · About · **My design estimate** (upload a STAAD `.std` or start from an optimised design, edit every price and carbon factor, run the IS 456 strength review, see suggested optimised designs, download a final report). Details: [`web/src/README.md`](web/src/README.md).
+Tabs: Overview · Design space · Pareto explorer (red/yellow/green zones, full property sheet, best-case cards, table of all front points) · **Optimise with my prices** (type prices or load a CSV, then re-run the optimiser) · Surrogate performance · Verification · Compute comparison · Sensitivity (incl. cement type) · Data & assumptions · Live evaluator · About · **My design estimate** (upload a STAAD `.std` or start from an optimised design, edit every price and carbon factor, run the IS 456 strength review, see suggested optimised designs, download a final report). Details: [`web/src/README.md`](web/src/README.md).
+
+### Change the prices, then optimise
+All unit prices are placeholders. Two ways to use your own, **before** the optimiser runs:
+* **Website** (needs `rcopt serve`): tab *Optimise with my prices* → type a price or move a slider (or load a CSV) → *Optimise* (about 1.5 minutes) → new designs, plot and table, all re-checked with the exact IS 456 model under your prices.
+* **Command line:** copy `config/prices_template.csv`, edit the numbers, run `.venv\Scripts\python.exe -m rcopt.cli reoptimize --prices my_prices.csv` (result in `data/results/custom/reoptimized.json`).
+For the full five-seed study with new prices, edit `config/cost_rates.yaml` and run `python -m rcopt.cli all` (trained models and the FE dataset are re-used).
 
 ## 3. Run the pipeline yourself (Windows PowerShell; Python 3.12)
 ```powershell
 .\make.ps1 setup          # virtual environment + pinned libraries + npm install
-.\make.ps1 all            # phase0 .. phase5 + export (about 2 h). For EVERY stage incl. sensitivity, cement scan and report: .venv\Scripts\python.exe -m rcopt.cli all
-.\make.ps1 test           # 77 automatic checks
+.\make.ps1 all            # every stage: phase0 .. phase5, sensitivity, cement scan, report, export (about 2 h the first time; changed prices/carbon only redo phases 4-5 onwards)
+.\make.ps1 test           # automatic checks
 ```
-Single steps: `.venv\Scripts\python.exe -m rcopt.cli phase0 | phase0b | phase1 | phase2 | phase3 | phase4 | phase5 | sensitivity | cement | report | export | serve`.
+Single steps: `.venv\Scripts\python.exe -m rcopt.cli phase0 | phase0b | phase1 | phase2 | phase3 | phase4 | phase5 | sensitivity | cement | report | export | reoptimize | prices-template | serve`.
 Each stage caches its output and is skipped when its inputs did not change (`--force` to redo).
 
 ---
@@ -67,7 +72,7 @@ Each stage caches its output and is skipped when its inputs did not change (`--f
 | [`web/`](web/README.md) | The **dashboard website** (React). `web/src` = code, `web/public/data` = the exported results it displays, `web/dist` = the built site. |
 | [`data/`](data/README.md) | **Inputs and outputs** of the pipeline: the STAAD reference numbers, the 15,000-design dataset, and the small final result files. |
 | [`models/`](models/README.md) | The **trained surrogate models** (≈ 300 MB, not in git; get them from Google Drive or retrain). |
-| [`tests/`](tests/README.md) | **77 automatic checks** that prove the code is right (textbook formulas, STAAD, physics). |
+| [`tests/`](tests/README.md) | **Automatic checks** that prove the code is right (textbook formulas, STAAD, physics). |
 | [`docs/`](docs/README.md) | **Documentation**: report draft, viva prep, assumptions to verify, decisions log, benchmark, standards compliance, deployment guide. |
 | [`scripts/`](scripts/README.md) | Helpers to pack/download the large model files. |
 | [`legacy/`](legacy/README.md) | The **owner's original files** (STAAD model, old optimiser, old README), untouched. |

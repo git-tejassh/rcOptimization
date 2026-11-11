@@ -11,6 +11,7 @@ OpenSees analysis, the slow honest baseline) — each with 5 random seeds, with 
 | `run.py` | Runs NSGA-II for each configuration × seed, records the best feasible designs after every generation (for the convergence plot) and stores each run in `data/processed/opt/`. |
 | `metrics.py` | Quality measures: non-dominated filtering, **hypervolume** (one number for "how good and how spread-out is the front", with a fixed reference so configs are comparable), spacing, and the cost-carbon correlation (close to 1 = narrow front). |
 | `phase4.py` | Orchestrates Phase 4: runs everything, pools the five seeds, builds the "near-Pareto set" (~100 designs, because the strict rank-1 front is only 6–13 points — criterion S1 ≥ 25 is **not met**, reported honestly), re-evaluates every front with the exact analysis, and writes `compute_comparison.json`, `optimization_summary.json` and `pareto_*.parquet`. |
+| `custom.py` | **"Change the prices, then optimise."** Applies the user's unit prices, runs one quick NSGA-II (default: surrogate B + safety margin, population 100 × 60 generations, about 1.5 minutes; "standard" = 200 × 150), re-checks every reported design with the exact FE + IS 456 under the same prices, keeps only truly feasible ones, and compares with the designs that were optimal at the placeholder prices. Started by `python -m rcopt.cli reoptimize --prices prices.csv` or by the dashboard tab "Optimise with my prices". |
 | `__init__.py` | Marks the folder as a package. |
 
 Settings (population, generations, seeds, margin rule) are in `config/optimize.yaml`.

@@ -5,7 +5,13 @@ Run:  uvicorn api.main:app --reload     (or ``make api``).  Not intended for Ver
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
+import tempfile
+import time
+import uuid
 from functools import lru_cache
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -14,9 +20,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from api.schemas import CostCarbonResponse, GenomeIn, ReviewIn, SurrogateOut, SurrogateResponse
+from api.schemas import CostCarbonResponse, GenomeIn, OptimizeIn, ReviewIn, SurrogateOut, SurrogateResponse
 from rcopt import config
 from rcopt.config import ROOT
+from rcopt.cost_carbon import prices as price_mod
 from rcopt.design.describe import describe_genome
 from rcopt.design.variables import default_space
 from rcopt.review.frame_review import ReviewError, review_staad
@@ -51,7 +58,7 @@ def _genome(body: GenomeIn) -> np.ndarray:
 @app.get("/health")
 def health() -> dict:
     models = {n: (ROOT / "models" / f"surrogate_{n}.joblib").exists() for n in ("A", "B")}
-    return {"status": "ok", "service": "rcopt", "surrogates": models, "strength_review": True,
+    return {"status": "ok", "service": "rcopt", "surrogates": models, "strength_review": True, "price_optimiser": all(models.values()),
             "results_present": (RESULTS / "verification.json").exists(), "dashboard_built": (ROOT / "web" / "dist" / "index.html").exists(),
             "live_evaluator_ready": all(models.values()), "provisional_data": bool(config.provisional_items())}
 
@@ -124,6 +131,72 @@ def review_staad_endpoint(body: ReviewIn) -> dict:
         return review_staad(body.text, body.concrete, body.steel, body.cement)
     except ReviewError as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+# ----------------------------------------------------------------------------- change prices, then optimise
+_JOBS: dict[str, dict] = {}          # job id -> {proc, dir, started, params}; one optimisation at a time (it uses several cores)
+
+
+def _job_status(jid: str) -> dict:
+    job = _JOBS.get(jid)
+    if job is None:
+        raise HTTPException(404, "unknown job id")
+    d: Path = job["dir"]
+    prog = {}
+    if (d / "progress.json").exists():
+        try:
+            prog = json.loads((d / "progress.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            prog = {}                                  # file caught mid-write: report the next poll
+    rc = job["proc"].poll()
+    out: dict = {"job_id": jid, "elapsed_s": round(time.time() - job["started"], 1), "params": job["params"], "progress": prog}
+    if rc is None:
+        out["status"] = "running"
+    elif rc == 0 and (d / "result.json").exists():
+        out["status"] = "done"
+        out["result"] = json.loads((d / "result.json").read_text(encoding="utf-8"))
+    else:
+        out["status"] = "failed"
+        out["error"] = ((d / "log.txt").read_text(encoding="utf-8", errors="replace")[-1500:] if (d / "log.txt").exists() else f"exit code {rc}")
+    return out
+
+
+@app.get("/prices/items")
+def prices_items() -> dict:
+    """Editable unit prices: key, label, unit, placeholder default, status; plus the CSV template."""
+    return {"items": price_mod.items(), "csv_template": price_mod.to_csv_text(), "note": "every default is a placeholder, not a verified rate"}
+
+
+@app.post("/optimize/prices")
+def optimize_prices(body: OptimizeIn) -> dict:
+    """Start a price-driven optimisation in a separate process (surrogate + safety margin, then exact FE re-check). Poll GET /optimize/jobs/{id}."""
+    from rcopt.optimize.custom import ENGINES, MODES
+
+    if body.mode not in MODES or body.engine not in ENGINES:
+        raise HTTPException(422, f"mode must be one of {list(MODES)}, engine one of {list(ENGINES)}")
+    if body.prices is not None and body.csv is not None:
+        raise HTTPException(422, "give prices OR csv, not both")
+    try:
+        vals = price_mod.from_csv_text(body.csv) if body.csv is not None else price_mod.validate(body.prices or {})
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if body.engine != "direct" and not (ROOT / "models" / f"surrogate_{body.engine[0]}.joblib").exists():
+        raise HTTPException(503, f"surrogate {body.engine[0]} is not trained: run `python -m rcopt.cli phase3` or copy models.zip (see docs/DEPLOY.md)")
+    if any(j["proc"].poll() is None for j in _JOBS.values()):
+        raise HTTPException(409, "another optimisation is still running; wait for it to finish")
+    jid = uuid.uuid4().hex[:10]
+    d = Path(tempfile.mkdtemp(prefix=f"rcopt_{jid}_"))
+    (d / "prices.json").write_text(json.dumps(vals), encoding="utf-8")
+    cmd = [sys.executable, "-m", "rcopt.cli", "reoptimize", "--prices-json", str(d / "prices.json"), "--mode", body.mode,
+           "--engine", body.engine, "--seed", str(body.seed), "--out", str(d / "result.json"), "--progress", str(d / "progress.json")]
+    proc = subprocess.Popen(cmd, cwd=str(ROOT), stdout=(d / "log.txt").open("w"), stderr=subprocess.STDOUT)
+    _JOBS[jid] = {"proc": proc, "dir": d, "started": time.time(), "params": {"mode": body.mode, "engine": body.engine, "seed": body.seed, "changed": vals}}
+    return {"job_id": jid, "status": "running"}
+
+
+@app.get("/optimize/jobs/{job_id}")
+def optimize_job(job_id: str) -> dict:
+    return _job_status(job_id)
 
 
 # the built dashboard is served from the same origin, so `rcopt serve` is a complete local deployment

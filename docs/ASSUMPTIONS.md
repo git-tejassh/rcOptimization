@@ -5,22 +5,27 @@ primary source offline; check it against your own copy before the report goes to
 
 Legend: status `provisional` = not verified; `chosen` = a modelling decision (reversible, in a YAML); `sourced` = verified.
 
-## A. IS 456:2000 tables and constants (`config/is456_tables.yaml`) - ALL transcribed from memory
+## A. IS 456:2000 tables and constants (`config/is456_tables.yaml`) - CHECKED against the printed code on 2026-11-11
 
-| # | Item | Value used | Clause | Status | Owner must verify |
-|---|---|---|---|---|---|
-| A1 | Table 19 tau_c (pt vs grade, M20-M40) | 13-row table in YAML | Table 19 | provisional | YES - every cell (two cells anchored by tests: M20 pt 0.5 -> 0.48, pt 1.0 -> 0.62) |
-| A2 | Table 20 tau_c,max | M20 2.8, M25 3.1, M30 3.5, M35 3.7, M40 4.0 | Table 20 | provisional | YES (anchored by tests) |
-| A3 | xu,max/d | Fe415 0.48, Fe500 0.46 | cl. 38.1 note | provisional | YES (SP 16 tabulates Fe500 with a slightly different 0.456-based value) |
-| A4 | Steel design stress-strain curve (6 points, 0.80-1.00 fyd; inelastic strain 0, 1e-4, 3e-4, 7e-4, 1e-3, 2e-3) | YAML | Fig. 23 / SP 16 | provisional | YES - checked internally against SP 16 total strains 0.00144 ... 0.00380 (Fe415), 0.00174 ... 0.00417 (Fe500) |
-| A5 | Concrete stress block 0.446 fck, strain 0.002/0.0035, pivot 3D/7 | code | cl. 38.1 | provisional | YES |
-| A6 | Ec = 5000 sqrt(fck) | solver.yaml | cl. 6.2.3.1 | provisional | no (well known) |
-| A7 | Min tension steel 0.85 bd/fy; max 4 % bD | design_space.yaml | cl. 26.5.1.1 | provisional | YES |
-| A8 | Shear: stirrup fy capped at 415; min Asv/(b sv) >= 0.4/(0.87 fy); sv <= min(0.75 d, 300) | code | cl. 26.5.1.5-6, 40.4 | provisional | YES |
-| A9 | Column: Puz = 0.45 fck Ac + 0.75 fy Asc; alpha_n 1.0 -> 2.0 over Pu/Puz 0.2 -> 0.8; emin = max(l/500 + D/30, 20) | code | cl. 39.6, 25.4 | provisional | YES (Puz and alpha_n reproduce STAAD's column-81 result exactly: IR 0.39) |
-| A10 | Column steel 0.8 % <= pt <= 4 % (code max 6 %; 4 % is a lap-practicality cap), clear spacing <= 300 mm | design_space.yaml | cl. 26.5.3.1 | provisional | YES |
-| A11 | Slender-column additional moment (cl. 39.7.1) with Pb from the strain-compatibility curve | code | cl. 39.7 | provisional | YES |
-| A12 | Span/depth basic ratios 20/26/7 and modification factor Fig. 4 approximated by 1/(0.225 + 0.00322 fs - 0.625 log10 pt) <= 2 (BS 8110-type fit of the Fig. 4 curves) | code | cl. 23.2.1 | provisional | YES - used only as a *diagnostic*, never as a hard constraint |
+All items A1-A11 were compared with the owner's copy `is.456.2000.pdf` (page-by-page record: `docs/IS456_VERIFICATION.md`); no value had to change. Status `sourced`.
+
+| # | Item | Value used | Clause | Status |
+|---|---|---|---|---|
+| A1 | Table 19 tau_c (pt vs grade) | 13 rows x M20-M40 | Table 19 (p. 73) | sourced - all 65 cells equal the printed table |
+| A2 | Table 20 tau_c,max | M20 2.8, M25 3.1, M30 3.5, M35 3.7, M40 4.0 | Table 20 (p. 73) | sourced |
+| A3 | xu,max/d | Fe415 0.48, Fe500 0.46 | note to cl. 38.1 (p. 70) | sourced |
+| A4 | Steel design stress-strain curve | 0.80-1.00 fyd, inelastic strains 0, 1e-4, 3e-4, 7e-4, 1e-3, 2e-3 | Fig. 23A (p. 70) | sourced |
+| A5 | Concrete stress block 0.446 fck, strains 0.002 / 0.0035, pivot 3D/7 | code | cl. 38.1, 39.1 | sourced |
+| A6 | Ec = 5000 sqrt(fck) | solver.yaml | cl. 6.2.3.1 | sourced |
+| A7 | Min tension steel 0.85 bd/fy; max 4 % bD | design_space.yaml | cl. 26.5.1.1 (p. 46) | sourced |
+| A8 | Shear: stirrup fy capped at 415; min Asv/(b sv) >= 0.4/(0.87 fy); sv <= min(0.75 d, 300) | code | cl. 26.5.1.5-6, 40.4 | sourced |
+| A9 | Column: Puz = 0.45 fck Ac + 0.75 fy Asc; alpha_n 1.0 -> 2.0 over Pu/Puz 0.2 -> 0.8; emin = max(l/500 + D/30, 20) | code | cl. 39.6 (p. 71), 25.4 (p. 42) | sourced (and reproduces STAAD column 81, IR 0.39) |
+| A10 | Column steel 0.8 % <= pt <= 6 % (project design cap 4 %, the code's own note on lap practicality), ties >= 6 mm (project 8 mm), pitch <= min(b, 16 dia, 300) | design_space.yaml | cl. 26.5.3.1-2 + Amendment 1 | sourced |
+| A11 | Slender-column additional moment Mu = Pu D/2000 (le/D)^2 | code | cl. 39.7.1 | sourced |
+| A12 | Span/depth basic ratios 20/26/7 are in cl. 23.2.1; the Fig. 4 modification factor is APPROXIMATED by 1/(0.225 + 0.00322 fs - 0.625 log10 pt) <= 2 | code | cl. 23.2.1 | **still approximate** - used only as a diagnostic, never as a constraint |
+| A13 | Table 5 (min grade / cement / w-c by exposure), Table 16 (cover), Table 18 (load factors), cl. 8.2.4.2 (cement <= 450 kg/m3) | design_space.yaml, loads.yaml | see IS456_VERIFICATION.md | sourced |
+
+Deliberately stricter than the code: emin about both axes at once (code: one axis at a time, cl. 25.4), only the L/250 total-deflection limit (cl. 23.2 (b) partition limit L/350 or 20 mm is not checked), 4 % column steel cap. See `docs/IS456_VERIFICATION.md` section 3.
 
 ## B. Loads and structural-model choices (`config/loads.yaml`, `config/solver.yaml`)
 
@@ -38,7 +43,7 @@ Legend: status `provisional` = not verified; `chosen` = a modelling decision (re
 | B10 | Torsion, shear deformation, P-delta, foundation flexibility | ignored | chosen | STAAD includes shear deformation; wall eccentricity torsion ignored in the optimiser, included in benchmark mode |
 | B11 | Beams modelled as rectangular (no T-flange action), uniform reinforcement over the span (no curtailment) | | chosen | conservative |
 
-## C. Cost rates (`config/cost_rates.yaml`) - ALL PROVISIONAL
+## C. Cost rates (`config/cost_rates.yaml`) - ALL PLACEHOLDERS (editable before optimising: CSV `rcopt reoptimize --prices`, or the dashboard tab "Optimise with my prices")
 
 No verified rate was available offline. Values are the chat examples in `legacy/context.txt` plus +/-500 INR/m3 extrapolation (M20, M40) and a placeholder
 Fe415 = Fe500 - 2 INR/kg. **Owner: replace with current Bhopal prices (Essco price list / MP PWD SOR / CPWD DSR).**

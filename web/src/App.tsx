@@ -11,6 +11,7 @@ import ProvenancePage from "./pages/ProvenancePage";
 import LivePage from "./pages/LivePage";
 import AboutPage from "./pages/AboutPage";
 import MyDesignPage from "./pages/MyDesignPage";
+import OptimisePage from "./pages/OptimisePage";
 
 /** A render error on one page must show a message, never a blank screen. */
 class Boundary extends Component<{ children: ReactNode; page: string }, { err: string | null }> {
@@ -40,6 +41,7 @@ const PAGES: { id: string; label: string; el: () => JSX.Element }[] = [
   { id: "overview", label: "Overview", el: Overview },
   { id: "space", label: "Design space", el: DesignSpacePage },
   { id: "pareto", label: "Pareto explorer", el: ParetoPage },
+  { id: "optimise", label: "Optimise with my prices", el: OptimisePage },
   { id: "surrogate", label: "Surrogate performance", el: SurrogatePage },
   { id: "verification", label: "Verification", el: VerificationPage },
   { id: "compute", label: "Compute comparison", el: ComputePage },
@@ -56,6 +58,7 @@ const NAV: { title: string; items: { id: string; hint: string }[] }[] = [
   { title: "Overview", items: [{ id: "overview", hint: "Project summary and headline numbers" }] },
   { title: "Designs", items: [
     { id: "pareto", hint: "Browse the cost vs carbon designs" },
+    { id: "optimise", hint: "Type your own prices, then optimise again" },
     { id: "verification", hint: "Were the predictions confirmed by the exact model?" },
   ] },
   { title: "Method", items: [
@@ -111,7 +114,7 @@ export default function App() {
     <ThemeCtx.Provider value={{ dark }}>
       {meta.provisional && (
         <div role="alert" className="px-4 py-1.5 text-center text-xs font-medium" style={{ background: "#f3e7c4", color: "#5c4510" }}>
-          Provisional data: cost rates, several carbon inputs and the IS 456 table transcriptions are unverified placeholders, so absolute ₹ and kgCO₂e values are indicative.
+          Placeholder prices: unit rates (and some carbon inputs) are not verified market values, so absolute ₹ and kgCO₂e are indicative. Type your own on “Optimise with my prices”. IS 456 values are checked against the printed code.
           <a className="ml-2 underline" href="#/provenance">See details</a>
         </div>
       )}
@@ -177,7 +180,7 @@ export default function App() {
             <div className="eyebrow">Read before quoting a number</div>
             <ul className="mt-3 space-y-1.5 text-white/70">
               <li>Gravity loads only (IS 456:2000); no seismic or wind design.</li>
-              <li>Prices and several carbon inputs are provisional.</li>
+              <li>Prices are placeholders (editable); several carbon inputs are provisional.</li>
               <li>Generated {meta.generated} · config {meta.config_hash}</li>
             </ul>
             <button className="mt-4 rounded-full border border-white/30 px-3 py-1 text-xs text-white" onClick={() => setDark(!dark)}>{dark ? "☀ Light page" : "☾ Dark page"}</button>

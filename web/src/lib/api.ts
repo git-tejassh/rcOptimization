@@ -17,6 +17,7 @@ export interface Health {
   service?: string;
   strength_review?: boolean;
   live_evaluator_ready?: boolean;
+  price_optimiser?: boolean;
   surrogates?: Record<string, boolean>;
 }
 
@@ -58,3 +59,41 @@ export async function reviewStaad(base: string, text: string, concrete: string, 
   if (!r.ok) throw new Error(typeof j.detail === "string" ? j.detail : `HTTP ${r.status}`);
   return j as ReviewReport;
 }
+
+/** One editable unit price (keys match src/rcopt/cost_carbon/prices.py). */
+export interface PriceItem { key: string; label: string; unit: string; group: string; default: number }
+
+export interface OptimiseResult {
+  prices: Record<string, number>;
+  defaults: Record<string, number>;
+  changed: Record<string, number>;
+  mode: string;
+  engine: string;
+  pop_size: number;
+  n_gen: number;
+  evaluations: number | null;
+  wall_s: number;
+  n_candidates: number;
+  n_feasible_true: number;
+  rejected: number;
+  designs: import("../types").ParetoDesign[] & { pareto_true?: boolean }[];
+  baseline_repriced: Record<string, { cost_old_prices: number; cost_new_prices: number; carbon: number; concrete: string; steel: string; cement: string }>;
+  note: string;
+}
+export interface Job {
+  job_id: string;
+  status: "running" | "done" | "failed";
+  elapsed_s: number;
+  progress: { stage?: string; gen?: number; n_gen?: number; feasible?: number; n_candidates?: number };
+  result?: OptimiseResult;
+  error?: string;
+}
+
+async function asJson(r: Response) {
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof j.detail === "string" ? j.detail : `HTTP ${r.status}`);
+  return j;
+}
+export const startOptimise = (base: string, prices: Record<string, number>, mode: string): Promise<{ job_id: string }> =>
+  fetch(`${base}/optimize/prices`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prices, mode }) }).then(asJson);
+export const jobStatus = (base: string, id: string): Promise<Job> => fetch(`${base}/optimize/jobs/${id}`).then(asJson);

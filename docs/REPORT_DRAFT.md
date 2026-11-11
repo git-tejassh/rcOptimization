@@ -1,7 +1,7 @@
 # Report draft: Surrogate-assisted multi-objective optimisation of an RC frame for cost and embodied carbon
 
 *Owner: Tejas Shrivastava, MANIT Bhopal (7th-semester major project). Generated from `data/results/` by `rcopt.report.report_draft`; every number below
-comes from the pipeline outputs. Provisional inputs (cost rates, emission factors, IS 456 table transcriptions) are listed in section 8.*
+comes from the pipeline outputs. Placeholder / provisional inputs (unit prices, cement content, transport, emission factors) are listed in section 8; the IS 456 values were checked against the printed code (`docs/IS456_VERIFICATION.md`).*
 
 ## Abstract
 A reproducible pipeline is built for a regular G+3 RC moment frame (the owner's STAAD model: 4 x 3 bays of 5 m, storey 3 m). OpenSeesPy 3D elastic analyses
@@ -74,7 +74,7 @@ One-time costs charged to the surrogate rows: data generation 15490 FE solves (a
 The surrogate did NOT pay off against direct FE in this setting: an elastic frame solve is a few tens of milliseconds.
 
 ## 8. Limitations and provisional values
-* Provisional (unverified): 20 config entries (all cost rates, carbon factors, IS 456 table transcriptions): see `docs/ASSUMPTIONS.md`. Absolute INR and kgCO2e values are indicative only.
+* Provisional (unverified): 19 config entries (unit prices are placeholders, plus carbon inputs): see `docs/ASSUMPTIONS.md`. The IS 456 table values are verified against the printed code (`docs/IS456_VERIFICATION.md`). Prices can be changed and the optimisation repeated (`rcopt reoptimize --prices file.csv` or the dashboard tab 'Optimise with my prices'). Absolute INR and kgCO2e values are indicative only.
 * Gravity only; no seismic / wind; no foundations; beam torsion ignored; slab not designed; cracked-stiffness modifiers 0.35 / 0.70 not validated by STAAD.
 * Deflection and shear never governed in the dataset; flexure, column interaction and steel limits did.
 * Surrogate B regresses the column demands per position class (30 classes); the earlier 4-extremal-triples variant failed verification (D-024) and was replaced.

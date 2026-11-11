@@ -166,6 +166,47 @@ def cement() -> None:
 
 
 @app.command()
+def reoptimize(prices: str = typer.Option("", help="CSV file with 'item,value' unit prices (see config/prices_template.csv)"),
+               prices_json: str = typer.Option("", help="JSON file {item: value} (used by the API)"),
+               mode: str = typer.Option("quick", help="quick (about 1 min) | standard (about 4 min)"),
+               engine: str = typer.Option("B_margin", help="B_margin | B | A_margin | A | direct"),
+               seed: int = 1, out: str = typer.Option("", help="result JSON (default data/results/custom/reoptimized.json)"),
+               progress: str = typer.Option("", help="progress JSON written while running")) -> None:
+    """Change the unit prices, THEN optimise: quick price-driven NSGA-II, re-checked with the exact FE + IS 456 under the same prices."""
+    from pathlib import Path
+
+    from rcopt.cost_carbon import prices as pm
+    from rcopt.optimize.custom import reoptimize as run
+
+    if prices and prices_json:
+        raise typer.BadParameter("give --prices OR --prices-json, not both")
+    try:
+        vals = pm.from_csv_text(Path(prices).read_text(encoding="utf-8")) if prices else (
+            pm.validate(json.loads(Path(prices_json).read_text(encoding="utf-8"))) if prices_json else {})
+    except (ValueError, OSError) as e:
+        raise typer.BadParameter(str(e)) from e
+    res = run(vals, mode=mode, engine=engine, seed=seed, progress_path=Path(progress) if progress else None)
+    dest = Path(out) if out else RESULTS / "custom" / "reoptimized.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(json.dumps(res, indent=1), encoding="utf-8")
+    best = sorted(res["designs"], key=lambda d: d["true_cost"])
+    typer.echo(f"changed prices: {res['changed'] or 'none (placeholder defaults)'}")
+    typer.echo(f"{res['n_feasible_true']} of {res['n_candidates']} candidates are truly feasible; {res['wall_s']} s -> {dest}")
+    if best:
+        typer.echo(f"cheapest: INR {best[0]['true_cost']:.0f}, {best[0]['true_carbon']:.0f} kgCO2e ({best[0]['concrete']}/{best[0]['steel']}/{best[0]['cement']})")
+
+
+@app.command(name="prices-template")
+def prices_template(out: str = "config/prices_template.csv") -> None:
+    """Write the CSV template of editable unit prices (placeholder defaults) for `rcopt reoptimize --prices`."""
+    from rcopt.cost_carbon import prices as pm
+
+    path = ROOT / out
+    path.write_bytes(pm.to_csv_text().encode("utf-8"))
+    typer.echo(f"wrote {path}")
+
+
+@app.command()
 def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     """Serve the built dashboard AND the API on one address (live evaluator + strength review). Use --host 0.0.0.0 to share on the LAN."""
     import uvicorn

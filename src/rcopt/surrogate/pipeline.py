@@ -217,7 +217,7 @@ def _sample_points(df_te: pd.DataFrame, pred: dict, n: int = 500, seed: int = 0)
 # ----------------------------------------------------------------------------- orchestration
 def run_phase3(force: bool = False) -> dict:
     sc = config.load_dict("surrogate")
-    chash = config.config_hash()
+    chash = config.config_hash(config.STRUCTURE + ("surrogate", "sampling"))
     out_path = RESULTS / "surrogate_metrics.json"
     if out_path.exists() and not force:
         m = json.loads(out_path.read_text())

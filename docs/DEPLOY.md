@@ -7,10 +7,10 @@ There are two kinds of deployment. Pick by what people need to do.
 | Read the results, use the Pareto explorer, price their own design (`My design estimate`) | **Static website** (Vercel / Netlify / GitHub Pages): no Python needed | switched off (a static site cannot run the finite-element model) |
 | Everything, including the live evaluator and the IS 456 strength review of an uploaded STAAD file | **One Python server** that serves the dashboard and the API together | on |
 
-## What the live evaluator and the strength review need
+## What the live evaluator, the strength review and the price optimiser need
 1. **Python environment** of the project: `make setup` (or `pip install -r requirements.txt`). OpenSeesPy runs the exact analysis.
 2. **Trained surrogate models** `models/surrogate_A.joblib` and `models/surrogate_B.joblib` (about 300 MB). Either train them (`python -m rcopt.cli phase3`, about 30 min) or copy `models.zip` from the shared Google Drive folder into the repo and unzip it there (`python scripts/fetch_models.py` does it from a link).
-   The *strength review* (STAAD upload) needs only OpenSees; the *live evaluator* also needs the models.
+   The *strength review* (STAAD upload) needs only OpenSees; the *live evaluator* and the *price optimiser* ("Optimise with my prices", about 1.5 minutes per run, ≈ 1.5 GB of memory while it runs) also need the models.
 3. **The dashboard built once**: `cd web && npm install && npm run build`.
 4. **Start the server**: `python -m rcopt.cli serve` and open **http://localhost:8000**. `GET /health` shows what is ready (`live_evaluator_ready`, `dashboard_built`, ...).
 
@@ -34,7 +34,8 @@ cloudflared tunnel --url http://localhost:8000      # prints an https://<random>
 (ngrok works the same way: `ngrok http 8000`.) The link works from anywhere while the laptop and the command stay running. Anyone with the link can open it, so do not put private data in the app.
 
 ## 4. A permanent, always-on link
-**a) Static site only (free, 5 minutes).** Everything except the live evaluator and strength review works.
+**a) Static site only (free, 5 minutes).** Everything except the live evaluator, the strength review and the optimiser re-run ("Optimise with my prices" still lets people edit and download the prices) works.
+- **GitHub Pages, no command line (recommended for the guide):** the repository already contains `.github/workflows/pages.yml`. The owner does this once: GitHub repository → *Settings* → *Pages* → *Build and deployment* → *Source: GitHub Actions*. Every push to `main` then rebuilds and publishes the site at `https://git-tejassh.github.io/rcOptimization/` (check the *Actions* tab for the run).
 - Vercel: `npm i -g vercel`, `cd web`, `vercel login`, `vercel --prod` (framework Vite, output `dist`; `web/vercel.json` is included). Or import the GitHub repo in the Vercel dashboard with root directory `web`.
 - GitHub Pages / Netlify: publish `web/dist` (the build is a single `index.html` plus `data/`).
 - Before building run `python -m rcopt.cli export` so `web/public/data` is current and committed.

@@ -1,5 +1,5 @@
 {
- "config_hash": "504ed34b0e44831a",
+ "config_hash": "a069365876001fae",
  "n_train_final": 12500,
  "chosen_params": {
   "max_depth": 8,
